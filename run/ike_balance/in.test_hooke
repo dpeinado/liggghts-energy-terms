@@ -51,4 +51,4 @@ thermo_modify		lost ignore norm no
 compute_modify		thermo_temp dynamic yes
 fix 			print1 all ave/time 1 1 10 v_IKE c_ePG c_epotN c_edisN c_epotT c_edisTV c_edisTF c_workT c_eKin c_rot_e c_edisH file files/energy-pitos.csv
 dump			mydmp all custom 10 files/dump.ike id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH v_ePGp
-run			5000000 upto		
+run			500000 upto		
