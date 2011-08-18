@@ -5,9 +5,14 @@ lmp_*
 dump.*
 vtks/*
 *.ods
+*.csv
 log.*
 ~*
 .~*
+.cproject
+.project
 # Directories
 files/
 print_files/
+Obj_serial_debug/
+.metadata/

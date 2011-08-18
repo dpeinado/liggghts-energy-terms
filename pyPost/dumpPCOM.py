@@ -14,98 +14,98 @@ class dumpPCOM:
 
   # --------------------------------------------------------------------
 
-  def __init__(self,*args):
-    if len(args) == 0:
-        raise StandardError,"dump file name not specified"
-    self.snaps = []
-    self.nsnaps = self.nselect = 0
-    self.names = {}
-#    self.tselect = tselect(self)
-#    self.aselect = aselect(self)
-    self.atype = "type"
-    self.bondflag = 0
-    self.bondlist = []
-    self.triflag = 0
-    self.trilist = []
-    self.triobj = 0
-    self.lineflag = 0
-    self.linelist = []
-    # flist = list of all dump file names    
-    self.flist = args[0]
+    def __init__(self,*args):
+        if len(args) == 0:
+            raise StandardError,"dump file name not specified"
+        self.snaps = []
+        self.nsnaps = self.nselect = 0
+        self.names = {}
+#        self.tselect = tselect(self)
+#       self.aselect = aselect(self)
+        self.atype = "type"
+        self.bondflag = 0
+        self.bondlist = []
+        self.triflag = 0
+        self.trilist = []
+        self.triobj = 0
+        self.lineflag = 0
+        self.linelist = []
+#       flist = list of all dump file names    
+        self.flist = args[0]
     
-  def writePCOM(self,*args):    
-    if len(args) == 0:
-        raise StandardError,"No atom type list specified"    
-    idTY = args[0]  
-    idx = 1
-    nameCOM = []
-    fileCOM = []
-    nameCOM.append(self.flist+'-AT-'+'all'+'.COM')
-    fileCOM.append(open(nameCOM[0],'w'))
-    for idtype in idTY:
-        nameCOM.append(self.flist+'-AT-'+idtype+'.COM')
-        name = nameCOM[idx]
-        fpoint = open(nameCOM[idx],'w')
-        fileCOM.append(fpoint)
-        idx +=1
-    self.calcCOM(idTY,fileCOM)
-  def getCOM(self,snap,idTypes):
-      time = snap.time    
-      x = self.names["x"]
-      y = self.names["y"]
-      z = self.names["z"]
-      r = self.names["radius"]
-      type = self.names["type"]
-      xcom = 0
-      ycom = 0
-      zcom = 0
-      massrT = 0
-      atoms = []
-      ntypes= len(idTypes)
-      xidcom=[]
-      yidcom=[]
-      zidcom=[]
-      idmassrT=[]
-      for i in xrange(ntypes):
-          xidcom.append(0)
-          yidcom.append(0)
-          zidcom.append(0)
-          idmassrT.append(0)        
-      for i in xrange(snap.natoms):            
-          atom = snap.atoms[i]
-          tipo = atom[type]
-          radio = atom[r]
-          #massr = atom[r]*atom[r]*atom[r]
-          massr = radio*radio*radio
-          #atoms.append([atom[id],atom[type],atom[x],atom[y],atom[z]])
-          xcom += atom[x]*massr
-          ycom += atom[y]*massr
-          zcom += atom[z]*massr
-          massrT += massr
-          for j in xrange(ntypes):
-              idT = float(idTypes[j])
-              if idT==tipo:
-                  xidcom[j]+= atom[x]*massr
-                  yidcom[j]+= atom[y]*massr
-                  zidcom[j]+= atom[z]*massr
-                  idmassrT[j]+= massr
-                  break
-      if massrT>0:
-          xcom/=massrT
-          ycom/=massrT
-          zcom/=massrT
-      respuesta=[]
-      respuesta.append(time)
-      respuesta.append([xcom, ycom, zcom])          
-      for j in xrange(ntypes) :
-          if idmassrT[j]>0:
-              xidcom[j] /= idmassrT[j]
-              yidcom[j] /= idmassrT[j]
-              zidcom[j] /= idmassrT[j]
-          respuesta.append([xidcom[j], yidcom[j], zidcom[j]])
-      return respuesta
+    def writePCOM(self,*args):    
+        if len(args) == 0:
+            raise StandardError,"No atom type list specified"    
+        idTY = args[0]  
+        idx = 1
+        nameCOM = []
+        fileCOM = []
+        nameCOM.append(self.flist+'-AT-'+'all'+'.COM')
+        fileCOM.append(open(nameCOM[0],'w'))
+        for idtype in idTY:
+            nameCOM.append(self.flist+'-AT-'+idtype+'.COM')
+            name = nameCOM[idx]
+            fpoint = open(nameCOM[idx],'w')
+            fileCOM.append(fpoint)
+            idx +=1
+        self.calcCOM(idTY,fileCOM)
+    def getCOM(self,snap,idTypes):
+        time = snap.time    
+        x = self.names["x"]
+        y = self.names["y"]
+        z = self.names["z"]
+        r = self.names["radius"]
+        type = self.names["type"]
+        xcom = 0
+        ycom = 0
+        zcom = 0
+        massrT = 0
+        atoms = []
+        ntypes= len(idTypes)
+        xidcom=[]
+        yidcom=[]
+        zidcom=[]
+        idmassrT=[]
+        for i in xrange(ntypes):
+            xidcom.append(0)
+            yidcom.append(0)
+            zidcom.append(0)
+            idmassrT.append(0)        
+        for i in xrange(snap.natoms):            
+            atom = snap.atoms[i]
+            tipo = atom[type]
+            radio = atom[r]
+            #massr = atom[r]*atom[r]*atom[r]
+            massr = radio*radio*radio
+            #atoms.append([atom[id],atom[type],atom[x],atom[y],atom[z]])
+            xcom += atom[x]*massr
+            ycom += atom[y]*massr
+            zcom += atom[z]*massr
+            massrT += massr
+            for j in xrange(ntypes):
+                idT = float(idTypes[j])
+                if idT==tipo:
+                    xidcom[j]+= atom[x]*massr
+                    yidcom[j]+= atom[y]*massr
+                    zidcom[j]+= atom[z]*massr
+                    idmassrT[j]+= massr
+                    break
+        if massrT>0:
+            xcom/=massrT
+            ycom/=massrT
+            zcom/=massrT
+        respuesta=[]
+        respuesta.append(time)
+        respuesta.append([xcom, ycom, zcom])          
+        for j in xrange(ntypes) :
+            if idmassrT[j]>0:
+                xidcom[j] /= idmassrT[j]
+                yidcom[j] /= idmassrT[j]
+                zidcom[j] /= idmassrT[j]
+            respuesta.append([xidcom[j], yidcom[j], zidcom[j]])
+        return respuesta
   
-  def writeVTK(self, *rootF):
+    def writeVTK(self, *rootF):
       
       if len(*rootF)==0:root="tmp"
       else: root=rootF[0]
@@ -258,7 +258,7 @@ class dumpPCOM:
           fs.close()          
           snap = self.read_snapshot(f)
           n+=1
-  def collisionBIN(self):
+    def collisionBIN(self):
       firstTime=True
       file = self.flist
       f=open(file)      
@@ -334,113 +334,197 @@ class dumpPCOM:
         phi=phi*signo
         snap = self.read_snapshot(f)
       self.final = phi
-  def writeGRAPH(self, root, enFile):      
-      energyFlag = False
-      IKE = 0.0
-      if enFile <> None:
-        energyFlag= True
-        fen = open(enFile)        
-      file = self.flist
-      f=open(file)
+    def writeGRAPH(self, root, enFile):      
+        energyFlag = False
+        IKE = 0.0
+        if enFile <> None:
+            energyFlag= True
+            fen = open(enFile)        
+        file = self.flist
+        f=open(file)
       
-      snap = self.read_snapshot(f)
-      n=snap.natoms
-      x = self.names["x"]
-      y = self.names["y"]
-      z = self.names["z"]
-      fx= self.names["fx"]
-      fy= self.names["fy"]
-      fz= self.names["fz"]
-      vx= self.names["vx"]
-      vy= self.names["vy"]
-      vz= self.names["vz"]
-      omegax=self.names["omegax"]
-      omegay=self.names["omegay"]
-      omegaz=self.names["omegaz"]
-      r = self.names["radius"]
-      type = self.names["type"]
-      cpen=self.names["f_CPEn"]
-      cden=self.names["f_CDEn"]
-      cpet=self.names["f_CPEt"]
-      cdevt=self.names["f_CDEVt"]
-      cdeft=self.names["f_CDEFt"]
-      ctfw=self.names["f_CTFW"]
-      deh=self.names["f_DEH"]
-      mass=self.names["mass"]
-      try:
-        epg=self.names["c_enPotGrav"]
-        epg_flag=1
-        epg0 = snap.atoms[0][epg]
-      except:
-         epg_flag=0 
+        snap = self.read_snapshot(f)
+        n=snap.natoms
+        x = self.names["x"]
+        y = self.names["y"]
+        z = self.names["z"]
+        fx= self.names["fx"]
+        fy= self.names["fy"]
+        fz= self.names["fz"]
+        vx= self.names["vx"]
+        vy= self.names["vy"]
+        vz= self.names["vz"]
+        omegax=self.names["omegax"]
+        omegay=self.names["omegay"]
+        omegaz=self.names["omegaz"]
+        r = self.names["radius"]
+        type = self.names["type"]
+        cpen=self.names["f_CPEn"]
+        cden=self.names["f_CDEn"]
+        cpet=self.names["f_CPEt"]
+        cdevt=self.names["f_CDEVt"]
+        cdeft=self.names["f_CDEFt"]
+        ctfw=self.names["f_CTFW"]
+        deh=self.names["f_DEH"]
+        mass=self.names["mass"]
+        try:
+            epg=self.names["v_ePGp"]
+            epg_flag=1
+            epg0 = snap.atoms[0][epg]
+        except:
+            epg_flag=0 
 
-      atomFile=[]
-      fs=[]
-      strtmp=""
-      for i in xrange(n+1):
-        atomFile.append(root+str(i)+'.dat')
-        print atomFile[i]
-        fs.append(open(atomFile[i], "w"))
-      if energyFlag:
-        line=  fen.readline()
-        line=  fen.readline()        
-
-      while snap:
-          if energyFlag:
-             line=  fen.readline()
-             fields = line.split()
-             IKE = float(fields[1])
-          time = snap.time                  
-          atoms=snap.atoms
-          atom=atoms[0]
-          kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
-          kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
-          kET = kE
-          kRT = kR
-          cpenT = atom[cpen]
-          cpetT = atom[cpet]
-          cdenT = atom[cden]
-          cdetTV = atom[cdevt]
-          cdetTF = atom[cdeft]
-          ctfwT = atom[ctfw]
-          dehT = atom[deh]
-	  if(epg_flag):
-	    epgT = atom[epg]-epg0
-	  else: epgT = 0.0
-#          epgT = 0.0
-          EnCons = kE+kR+atom[cpen]+epgT
-          EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
-          EnConsT = EnCons
-          EnTotT = EnTot
-          print >>fs[0], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
-          for i in xrange(1, n):
-            atom=atoms[i]
+        atomFile=[]
+        fs=[]
+        strtmp=""
+        for i in xrange(n+1):
+            atomFile.append(root+str(i)+'.dat')
+            print atomFile[i]
+            fs.append(open(atomFile[i], "w"))
+        if energyFlag:
+            line=  fen.readline()
+            line=  fen.readline()        
+    
+        while snap:
+            if energyFlag:
+                line=  fen.readline()
+                fields = line.split()
+                IKE = float(fields[1])
+            time = snap.time                  
+            atoms=snap.atoms
+            atom=atoms[0]
             kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
             kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
-            kET += kE
-            kRT += kR
-            cpenT += atom[cpen]
-            cpetT += atom[cpet]
-            cdenT += atom[cden]
-            cdetTV += atom[cdevt]
-            cdetTF += atom[cdeft]
-            ctfwT += atom[ctfw]
-            dehT += atom[deh]          
+            kET = kE
+            kRT = kR
+            cpenT = atom[cpen]
+            cpetT = atom[cpet]
+            cdenT = atom[cden]
+            cdetTV = atom[cdevt]
+            cdetTF = atom[cdeft]
+            ctfwT = atom[ctfw]
+            dehT = atom[deh]
             if(epg_flag):
-	      epgT += (atom[epg]-epg0)
-	    else: epgT = 0.0
-#            epgT = 0.0
+                epgT = atom[epg]-epg0
+            else: epgT = 0.0
+    #          epgT = 0.0
             EnCons = kE+kR+atom[cpen]+epgT
             EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
-            EnConsT += EnCons
-            EnTotT += EnTot
-            print >>fs[i], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
-          print >>fs[n],  time,kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
-          snap = self.read_snapshot(f)
-      for i in xrange(n+1):
-        fs[i].close()
-          
-  def boundingBox(self,file,xlo,xhi,ylo,yhi,zlo,zhi):
+            EnConsT = EnCons
+            EnTotT = EnTot
+            print >>fs[0], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            for i in xrange(1, n):
+                atom=atoms[i]
+                kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
+                kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
+                kET += kE
+                kRT += kR
+                cpenT += atom[cpen]
+                cpetT += atom[cpet]
+                cdenT += atom[cden]
+                cdetTV += atom[cdevt]
+                cdetTF += atom[cdeft]
+                ctfwT += atom[ctfw]
+                dehT += atom[deh]          
+                if(epg_flag):
+                    epgT += (atom[epg]-epg0)
+                else: epgT = 0.0
+    #            epgT = 0.0
+                EnCons = kE+kR+atom[cpen]+epgT
+                EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
+                EnConsT += EnCons
+                EnTotT += EnTot
+                if(epg_flag):
+                    print >>fs[i], time, epgT,  kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+                else: print >>fs[i], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            if(epg_flag):
+                print >>fs[n],  time, epgT, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
+            else: print >>fs[n],  time, epgT, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
+            snap = self.read_snapshot(f)
+        for i in xrange(n+1):
+            fs[i].close()
+        
+    def checkEnergy(self, root, enFile):      
+        energyFlag = False
+        IKE = 0.0
+        if enFile <> None:
+            energyFlag= True
+            fen = open(enFile)        
+        file = self.flist
+        f=open(file)
+        
+        snap = self.read_snapshot(f)
+        n=snap.natoms
+        if n>1:
+            raise StandardError, "Solo quiero una particula (energia particula contra pared)"
+        x = self.names["x"]
+        y = self.names["y"]
+        z = self.names["z"]
+        fx= self.names["fx"]
+        fy= self.names["fy"]
+        fz= self.names["fz"]
+        vx= self.names["vx"]
+        vy= self.names["vy"]
+        vz= self.names["vz"]
+        omegax=self.names["omegax"]
+        omegay=self.names["omegay"]
+        omegaz=self.names["omegaz"]
+        r = self.names["radius"]
+        type = self.names["type"]
+        cpen=self.names["f_CPEn"]
+        cden=self.names["f_CDEn"]
+        cpet=self.names["f_CPEt"]
+        cdevt=self.names["f_CDEVt"]
+        cdeft=self.names["f_CDEFt"]
+        ctfw=self.names["f_CTFW"]
+        deh=self.names["f_DEH"]
+        mass=self.names["mass"]
+        try:
+            epg=self.names["v_ePGp"]
+            epg_flag=1
+        except:
+            epg_flag=0 
+    
+        atomFile=root+'.csv'    
+        strtmp=""
+        fs = open(atomFile, "w")
+        if energyFlag:
+            line=  fen.readline()
+            line=  fen.readline()        
+        print >>fs, 'time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE',  'ErrorA',  'ErrorR'
+        while snap:
+            if energyFlag:
+                line=  fen.readline()
+                fields = line.split()
+                IKE = float(fields[1])
+            time = snap.time                  
+            atoms=snap.atoms
+            atom=atoms[0]
+            kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
+            kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
+            eKIN = kE+kR
+            cpeN = atom[cpen]
+            cpeT = atom[cpet]
+            cdeN = atom[cden]
+            cdeTV = atom[cdevt]
+            cdeTF = atom[cdeft]
+            ctfW = atom[ctfw]
+            eCOL= cpeN+cpeT+cdeN+cdeTV+cdeTF+ctfW
+            DEH = atom[deh]
+            if(epg_flag):
+                ePG = atom[epg]
+            else: ePG = 0.0
+            LHS = eKIN+eCOL+ePG+DEH
+            RHS = IKE
+            ErrorA = math.fabs(LHS-RHS)
+            if IKE>0.0:
+                ErrorR = ErrorA/IKE
+            else: ErrorR = 0
+            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  ErrorA,  ErrorR
+            snap = self.read_snapshot(f)        
+        fs.close()
+            
+    def boundingBox(self,file,xlo,xhi,ylo,yhi,zlo,zhi):
       f = open(file,"w")  
       print >>f,"# vtk DataFile Version 2.0"
       print >>f,"Generated by pizza.py"
@@ -455,10 +539,9 @@ class dumpPCOM:
       print >>f,zlo,zhi
  
  
-  def calcCOM(self, idTypes, filePointer):
-  
-    file=self.flist
-    f=open(file)
+    def calcCOM(self, idTypes, filePointer):
+        file=self.flist
+        f=open(file)
 
 #    snap = self.read_snapshot(f)
 #    comCoords = self.getCOM(snap, idTypes)
@@ -467,73 +550,73 @@ class dumpPCOM:
 #        cual = comCoords[i+1]
 #        print>>filePointer[i],time,cual[0], cual[1], cual[2]
     
-    snap = self.read_snapshot(f)
-    while snap:
-        print snap.time,
-        sys.stdout.flush()
-        comCoords = self.getCOM(snap, idTypes)
-        time = comCoords[0]
-        for i in xrange(len(filePointer)):
-            cual = comCoords[i+1]
-            print>>filePointer[i],time,cual[0], cual[1], cual[2]
         snap = self.read_snapshot(f)
-                    
-    for i in xrange(len(filePointer)):
-        filePointer[i].close()
-    print
+        while snap:
+            print snap.time,
+            sys.stdout.flush()
+            comCoords = self.getCOM(snap, idTypes)
+            time = comCoords[0]
+            for i in xrange(len(filePointer)):
+                cual = comCoords[i+1]
+                print>>filePointer[i],time,cual[0], cual[1], cual[2]
+            snap = self.read_snapshot(f)
+                        
+        for i in xrange(len(filePointer)):
+            filePointer[i].close()
+        print
 
 
   
-  def read_snapshot(self,f):
-    try:
-      snap = Snap()
-      item = f.readline()
-      snap.time = int(f.readline().split()[0])    # just grab 1st field
-      item = f.readline()
-      snap.natoms = int(f.readline())
+    def read_snapshot(self,f):
+        try:
+            snap = Snap()
+            item = f.readline()
+            snap.time = int(f.readline().split()[0])    # just grab 1st field
+            item = f.readline()
+            snap.natoms = int(f.readline())
 
-      snap.aselect = zeros(snap.natoms)
+            snap.aselect = zeros(snap.natoms)
 
-      item = f.readline()
-      words = f.readline().split()
-      snap.xlo,snap.xhi = float(words[0]),float(words[1])
-      words = f.readline().split()
-      snap.ylo,snap.yhi = float(words[0]),float(words[1])
-      words = f.readline().split()
-      snap.zlo,snap.zhi = float(words[0]),float(words[1])
+            item = f.readline()
+            words = f.readline().split()
+            snap.xlo,snap.xhi = float(words[0]),float(words[1])
+            words = f.readline().split()
+            snap.ylo,snap.yhi = float(words[0]),float(words[1])
+            words = f.readline().split()
+            snap.zlo,snap.zhi = float(words[0]),float(words[1])
 
-      item = f.readline()
-      if len(self.names) == 0:
-        words = item.split()[2:]
-        if len(words):
-          for i in range(len(words)):
-            if words[i] == "xs" or words[i] == "xu":
-              self.names["x"] = i
-            elif words[i] == "ys" or words[i] == "yu":
-              self.names["y"] = i
-            elif words[i] == "zs" or words[i] == "zu":
-              self.names["z"] = i
-            else: self.names[words[i]] = i
+            item = f.readline()
+            if len(self.names) == 0:
+                words = item.split()[2:]
+                if len(words):
+                    for i in range(len(words)):
+                        if words[i] == "xs" or words[i] == "xu":
+                            self.names["x"] = i
+                        elif words[i] == "ys" or words[i] == "yu":
+                            self.names["y"] = i
+                        elif words[i] == "zs" or words[i] == "zu":
+                            self.names["z"] = i
+                        else: self.names[words[i]] = i
 
-      if snap.natoms:
-        words = f.readline().split()
-        ncol = len(words)
-        for i in xrange(1,snap.natoms):
-          words += f.readline().split()
-        floats = map(float,words)
-        atoms = zeros((snap.natoms,ncol), dtype=float32)
-        start = 0
-        stop = ncol
-        for i in xrange(snap.natoms):
-          atoms[i] = floats[start:stop]
-          start = stop
-          stop += ncol
-      else: atoms = None
-      snap.atoms = atoms
-      return snap
-    except:
-      return 0
-  def gridProperties(self, *args):
+            if snap.natoms:
+                words = f.readline().split()
+                ncol = len(words)
+                for i in xrange(1,snap.natoms):
+                    words += f.readline().split()
+                floats = map(float,words)
+                atoms = zeros((snap.natoms,ncol), dtype=float32)
+                start = 0
+                stop = ncol
+                for i in xrange(snap.natoms):
+                    atoms[i] = floats[start:stop]
+                    start = stop
+                    stop += ncol
+            else: atoms = None
+            snap.atoms = atoms
+            return snap
+        except:
+            return 0
+    def gridProperties(self, *args):
         if len(args) == 0:
             raise StandardError,"No atom type list specified"    
         nx=args[0][0]
