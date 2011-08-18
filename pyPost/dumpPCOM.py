@@ -491,7 +491,7 @@ class dumpPCOM:
         if energyFlag:
             line=  fen.readline()
             line=  fen.readline()        
-        print >>fs, 'time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE',  'ErrorA',  'ErrorR'
+        print >>fs, 'time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE',  'ErrorA',  'ErrorR',   'kE', 'kR',  'eKIN',  'cpeN',  'cpeT',  'cdeN',  'cdeTV',  'cdeTF',  'ctfW'
         while snap:
             if energyFlag:
                 line=  fen.readline()
@@ -519,8 +519,8 @@ class dumpPCOM:
             ErrorA = math.fabs(LHS-RHS)
             if IKE>0.0:
                 ErrorR = ErrorA/IKE
-            else: ErrorR = 0
-            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  ErrorA,  ErrorR
+            else: ErrorR =ErrorA/LHS
+            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  ErrorA,  ErrorR, kE,  kR,  eKIN,  cpeN,  cpeT,  cdeN,  cdeTV,  cdeTF,  ctfW
             snap = self.read_snapshot(f)        
         fs.close()
             

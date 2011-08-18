@@ -348,7 +348,7 @@ void FixWallGranHookeHistoryEnergy::compute_force(int ip, double deltan, double 
   // Energy terms
    myEpotN = epK*fn_pot*fn_pot/kn; // 0.4/2 = 2/5*1/2
    myEdisN = damp*vnnr*dt;
-   myEpotT = epK*(c_history[0]*c_history[0]+c_history[1]*c_history[1]+c_history[2]*c_history[2])*kt;
+   myEpotT = 0.0;//epK*(c_history[0]*c_history[0]+c_history[1]*c_history[1]+c_history[2]*c_history[2])*kt;
 
    IKE[0] += (fx*vwall[0]+fy*vwall[1]+fz*vwall[2])*dt;
 //   printf("dx = %f dy = %f dz = %f\n",dx,dy,dz);
