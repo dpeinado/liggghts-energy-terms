@@ -86,6 +86,10 @@ void FixCheckTimestepGran::init()
   pg = (PairGranHookeHistory*)force->pair_match("gran/hooke/history",1);
   if(!pg) pg = (PairGranHookeHistory*)force->pair_match("gran/hertz/history",1);
   if(!pg) pg = (PairGranHookeHistory*)force->pair_match("gran/hooke",1);
+  
+  if(!pg) pg = (PairGranHookeHistory*)force->pair_match("gran/hooke/history/energy",1);
+  if(!pg) pg = (PairGranHookeHistory*)force->pair_match("gran/hertz/history/energy",1);
+  if(!pg) pg = (PairGranHookeHistory*)force->pair_match("gran/hertz/incremental/energy",1);
 
   if (!pg) error->all("Fix check/timestep/gran can only be used together with: gran/hooke/history, gran/hooke, gran/hertz/history");
 

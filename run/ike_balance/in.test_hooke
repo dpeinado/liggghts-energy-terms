@@ -6,7 +6,7 @@ newton 			off
 region 			dominio block 0 100 0 100 -4 100 units box
 create_box 		1 dominio
 create_atoms 		1 single 50 50.0 0.0 units box
-set 			atom 1 vz -20.0
+set 			atom 1 vz -0.0
 set 			atom 1 vy 0.0
 set 			atom 1 diameter 1
 set 			atom 1 density  1.90985485103132161955691
