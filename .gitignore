@@ -1,0 +1,10 @@
+*.[oa]
+lmp_*
+*.png
+*.vtk
+files/*
+dump.*
+print_files/*
+vtks/*
+*.ods
+log.*
