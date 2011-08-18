@@ -1,0 +1,105 @@
+pair_style gran/hertz/incremental/energy 1 0 0
+-9.9999999999978641019
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 1 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 50 50.0 0.5001 units box
+Created 1 atoms
+	set atom 1 vz 	-9.9999999999978641019
+Setting atom values ...
+  1 settings made for vz
+	set atom 1 vy 	0.0000065358979323842
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 1 0.7
+	fix 			m4 all property/global coefficientFriction peratomtypepair 1 1.0
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hertz/incremental/energy  1 0 0
+	pair_coeff		* *
+	fix				zwall all wall/gran/hertz/incremental/energy  1 0 zplane 0 NULL 1 #wiggle z 0.1 6.0e-2	
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 1
+Setting up run ...
+Memory usage per processor = 28.8538 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0            0            0            0            0 
+       1            0            0            0            0            0 
+Loop time of 0.0315561 on 1 procs for 1 steps with 1 atoms
+
+Pair  time (%) = 0.000746965 (2.3671)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00121307 (3.84418)
+Outpt time (%) = 0.00341797 (10.8314)
+Other time (%) = 0.0261781 (82.9573)
+
+Nlocal:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	
+	compute			rot_e all erotate/sphere
+	compute			eKin  all ke
+	compute		  epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		IKE equal f_IKE
+	variable		eCon equal "c_eKin + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_edisTF+c_edisTV+c_edisH+c_workT-v_IKE"
+
+	thermo_style	custom step atoms v_IKE v_eTot v_eCon c_eKin c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT c_edisH								  
+	thermo			10
+	thermo_modify	lost ignore norm no
+	compute_modify	thermo_temp dynamic yes
+
+	fix 			print1 all ave/time 1 1 10 f_IKE[0] c_eKin c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot  c_edisH file files/energy-SubStep_hertz_incremental_energy-0_En0_7_COF1_0_PO0_3.0.csv
+	dump			mydmp all custom 10 files/dump-SubStep_hertz_incremental_energy-0_En0_7_COF1_0_PO0_3.0 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			    5000 upto		
+Setting up run ...
+Memory usage per processor = 28.8538 Mbytes
+Step Atoms IKE eTot eCon eKin rot_e epotN epotT edisN edisTV edisTF workT edisH 
+       1        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      10        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      20        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      30        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      40        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      50        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      60        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      70        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      80        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+      90        1            0    49.999883    49.999883    49.999883            0            0            0            0            0            0            0            0 
+files/SubStep_hertz_incremental_energy-0_En0_7_COF1_0_PO0_3_0_0.dat
+files/SubStep_hertz_incremental_energy-0_En0_7_COF1_0_PO0_3_0_1.dat
+
+

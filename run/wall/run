@@ -1,0 +1,4 @@
+#!/bin/bash
+./lmp_serial_debug < in.new
+$HOME/LIGGGHTS/pyPost/pyGRAPH.py dump.new he energy1.csv
+gnuplot plot_hertz
