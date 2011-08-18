@@ -3,9 +3,9 @@ dimension 		3
 atom_style 		granular
 boundary 		f f f
 newton 			off
-region 			dominio block 0 100 0 100 -2 100 units box
+region 			dominio block 0 100 0 100 -4 100 units box
 create_box 		1 dominio
-create_atoms 		1 single 50 50.0 0.501 units box
+create_atoms 		1 single 50 50.0 0.0 units box
 set 			atom 1 vz -20.0
 set 			atom 1 vy 0.0
 set 			atom 1 diameter 1
@@ -15,7 +15,7 @@ neighbor		1 bin
 neigh_modify		delay 0
 fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7
 fix 			m2 all property/global poissonsRatio peratomtype 0.3
-fix 			m3 all property/global coefficientRestitution peratomtypepair 1 0.7
+fix 			m3 all property/global coefficientRestitution peratomtypepair 1 0.3
 fix 			m4 all property/global coefficientFriction peratomtypepair 1 1.0
 fix 		 	m5 all property/global characteristicVelocity scalar 10
 fix			grav all gravity 9810 vector 0.0 0.0 -1.0
@@ -23,13 +23,16 @@ fix 			ts_check all check/timestep/gran 1000 0.1 0.1
 pair_style		gran/hooke/history/energy  1 0
 pair_coeff		* *
 compute			enPotGrav all gpe/atom z 9810
-fix			zwall all wall/gran/hooke/history/energy  1 0 zplane 0 NULL 1 wiggle z 1.0 0.0625
+fix			zwall all wall/gran/hooke/history/energy  1 0 zplane -0.50 NULL 1 wiggle z 3.0 0.0625
 communicate		single vel yes
 fix    			1 all nve/sphere
 timestep		0.000001
 run 0
 compute			rot_e all erotate/sphere
 compute			eKin  all ke
+compute 		displ all displace/atom
+variable		ePG2p atom mass*9810*c_displ[3]
+compute			ePG2 all reduce sum v_ePG2p
 compute			ePG all reduce sum c_enPotGrav
 compute			epotN all reduce sum f_CPEn
 compute			edisN all reduce sum f_CDEn
@@ -42,10 +45,10 @@ variable		IKE equal f_IKE
 variable		eCOL equal "c_epotN+c_edisN+c_epotT+c_edisTV+c_edisTF+c_workT"
 variable		eKIN equal "c_eKin+c_rot_e"
 variable		eDmI equal "c_edisH-v_IKE"
-thermo_style		custom step atoms c_ePG v_eCOL v_eKIN v_eDmI f_ts_check[1] f_ts_check[2] f_ts_check[3]
+thermo_style		custom step atoms c_ePG c_ePG2 v_eCOL v_eKIN v_eDmI f_ts_check[1] f_ts_check[2] f_ts_check[3]
 thermo			10000
 thermo_modify		lost ignore norm no
 compute_modify		thermo_temp dynamic yes
-fix 			print1 all ave/time 1 1 1000 c_ePG c_epotN c_edisN c_epotT c_edisTV c_edisTF c_workT c_eKin c_rot_e c_edisH v_IKE file files/energy-pitos.csv
-dump			mydmp all custom 1000 files/dump.ike id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH c_enPotGrav
+fix 			print1 all ave/time 1 1 1000 c_ePG c_ePG2 c_epotN c_edisN c_epotT c_edisTV c_edisTF c_workT c_eKin c_rot_e c_edisH v_IKE file files/energy-pitos.csv
+dump			mydmp all custom 1000 files/dump.ike id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH v_ePG2p
 run			5000000 upto		

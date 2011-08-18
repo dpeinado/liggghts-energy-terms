@@ -238,5 +238,5 @@ double FixCheckTimestepGran::compute_vector(int n)
 {
   if(n == 0)      return fraction_rayleigh;
   else if(n == 1) return fraction_hertz;
-  else if(n == 2) return fraction_hertz;
+  else if(n == 2) return fraction_skin;
 }
