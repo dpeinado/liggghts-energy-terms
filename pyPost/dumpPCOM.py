@@ -448,6 +448,7 @@ class dumpPCOM:
         energyFlag = False
         IKE = 0.0
         if enFile <> None:
+            print "Energy Flag set ON"
             energyFlag= True
             fen = open(enFile)        
         file = self.flist
@@ -482,16 +483,30 @@ class dumpPCOM:
         try:
             epg=self.names["v_ePGp"]
             epg_flag=1
+            print "Gravitational Potential Energy Flag set ON"
         except:
             epg_flag=0 
-    
-        atomFile=root+'.csv'    
+        try:
+            ekinl=self.names["c_eKinLp"]
+            ekinl_flag=1
+            print "Translational Kinetic Energy Flag set ON"
+        except:
+            ekinl_flag=0          
+        try:
+            ekinr=self.names["v_eKinRp"]
+            ekinr_flag=1
+            print "Rotational Kinetic Energy Flag set ON"
+        except:
+            ekinr_flag=0          
+            
+        atomFile=root+'.dat'    
         strtmp=""
         fs = open(atomFile, "w")
         if energyFlag:
             line=  fen.readline()
             line=  fen.readline()        
-        print >>fs, 'time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE',  'ErrorA',  'ErrorR',   'kE', 'kR',  'eKIN',  'cpeN',  'cpeT',  'cdeN',  'cdeTV',  'cdeTF',  'ctfW'
+        print >>fs, '# time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE', 'LHS',  'ErrorA',  'ErrorR',   'kE', 'kR',  'eKIN',  'cpeN',  'cpeT',  'cdeN',  'cdeTV',  'cdeTF',  'ctfW'
+        n=0
         while snap:
             if energyFlag:
                 line=  fen.readline()
@@ -500,8 +515,12 @@ class dumpPCOM:
             time = snap.time                  
             atoms=snap.atoms
             atom=atoms[0]
-            kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
-            kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
+            if ekinl_flag:
+                kE = atom[ekinl]
+            else:  kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
+            if ekinr_flag:
+                kR = atom[ekinr]
+            else: kR = 0.2*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
             eKIN = kE+kR
             cpeN = atom[cpen]
             cpeT = atom[cpet]
@@ -514,14 +533,18 @@ class dumpPCOM:
             if(epg_flag):
                 ePG = atom[epg]
             else: ePG = 0.0
+            if(n==0):
+                En0=eKIN+eCOL+ePG
             LHS = eKIN+eCOL+ePG+DEH
-            RHS = IKE
+            RHS = IKE+En0
             ErrorA = math.fabs(LHS-RHS)
-            if IKE>0.0:
-                ErrorR = ErrorA/IKE
-            else: ErrorR =ErrorA/LHS
-            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  ErrorA,  ErrorR, kE,  kR,  eKIN,  cpeN,  cpeT,  cdeN,  cdeTV,  cdeTF,  ctfW
+            Denom=0.5*(LHS+RHS)
+            if fabs(Denom)>0.0:
+                ErrorR = ErrorA/Denom*100.0
+            else: ErrorR =0
+            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  LHS,  ErrorA,  ErrorR, kE,  kR,  eKIN,  cpeN,  cpeT,  cdeN,  cdeTV,  cdeTF,  ctfW
             snap = self.read_snapshot(f)        
+            n+=1
         fs.close()
             
     def boundingBox(self,file,xlo,xhi,ylo,yhi,zlo,zhi):
