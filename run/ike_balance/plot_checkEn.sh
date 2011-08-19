@@ -1,7 +1,7 @@
 #!/bin/sh
 gnuplot << EOF
 set term png size 1600, 1300
-set output "print_files/${2}_zoom.png"
+set output "print_files/${2}.png"
 set origin 0,0
 set title "$1"
 set grid
@@ -21,6 +21,6 @@ set y2tics
 set y2label "In %"
 set ylabel "In Energy units"
 #set y2range [0:0.014]
-plot [:][0:500000] "${2}.dat" using 1:2 title "eKin" with lp ls 1, "${2}.dat" using 1:3 title "eCOL" with lp ls 2, "${2}.dat" using 1:4 title "ePG" with lp ls 3,"${2}.dat" using 1:5 title "DEH" with lp ls 4, "${2}.dat" using 1:6 title "IKE" with lp ls 5, "${2}.dat" using 1:7 title "LHS" with lp ls 6, "${2}.dat" using 1:(1*\$8) title "errA" with lp ls 7, "${2}.dat" using 1:9 axes x1y2 title "errR %" with lp ls 8
+plot "${2}.dat" using 1:2 title "eKin" with lp ls 1, "${2}.dat" using 1:3 title "eCOL" with lp ls 2, "${2}.dat" using 1:4 title "ePG" with lp ls 3,"${2}.dat" using 1:5 title "DEH" with lp ls 4, "${2}.dat" using 1:6 title "IKE" with lp ls 5, "${2}.dat" using 1:7 title "LHS" with lp ls 6, "${2}.dat" using 1:(1*\$8) title "errA" with lp ls 7, "${2}.dat" using 1:9 axes x1y2 title "errR %" with lp ls 8
 #plot [0:200000] [0:35] "${2}.dat" using 1:2 title "eKin" with lp ls 1, "${2}.dat" using 1:3 title "eCOL" with lp ls 2, "${2}.dat" using 1:4 title "ePG" with lp ls 3,"${2}.dat" using 1:5 title "DEH" with lp ls 4, "${2}.dat" using 1:6 title "IKE" with lp ls 5, "${2}.dat" using 1:7 title "LHS" with lp ls 6, "${2}.dat" using 1:8 axes x1y2 title "errA" with lp ls 7, "${2}.dat" using 1:9 axes x1y2 title "errR %" with lp ls 8
 EOF
