@@ -367,12 +367,6 @@ class dumpPCOM:
         ctfw=self.names["f_CTFW"]
         deh=self.names["f_DEH"]
         mass=self.names["mass"]
-        try:
-            epg=self.names["v_ePGp"]
-            epg_flag=1
-            epg0 = snap.atoms[0][epg]
-        except:
-            epg_flag=0 
 
         atomFile=[]
         fs=[]
@@ -404,11 +398,8 @@ class dumpPCOM:
             cdetTF = atom[cdeft]
             ctfwT = atom[ctfw]
             dehT = atom[deh]
-            if(epg_flag):
-                epgT = atom[epg]-epg0
-            else: epgT = 0.0
-    #          epgT = 0.0
-            EnCons = kE+kR+atom[cpen]+epgT
+
+            EnCons = kE+kR+atom[cpen]
             EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
             EnConsT = EnCons
             EnTotT = EnTot
@@ -426,20 +417,13 @@ class dumpPCOM:
                 cdetTF += atom[cdeft]
                 ctfwT += atom[ctfw]
                 dehT += atom[deh]          
-                if(epg_flag):
-                    epgT += (atom[epg]-epg0)
-                else: epgT = 0.0
-    #            epgT = 0.0
-                EnCons = kE+kR+atom[cpen]+epgT
+
+                EnCons = kE+kR+atom[cpen]
                 EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
                 EnConsT += EnCons
                 EnTotT += EnTot
-                if(epg_flag):
-                    print >>fs[i], time, epgT,  kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
-                else: print >>fs[i], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
-            if(epg_flag):
-                print >>fs[n],  time, epgT, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
-            else: print >>fs[n],  time, epgT, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
+                print >>fs[i], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            print >>fs[n],  time, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
             snap = self.read_snapshot(f)
         for i in xrange(n+1):
             fs[i].close()

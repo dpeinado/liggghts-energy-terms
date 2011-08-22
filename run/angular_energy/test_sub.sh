@@ -2,17 +2,19 @@
 Vangle=0
 Vmod=10
 #model="gran/hertz/incremental/energy  1 0 "
-model="gran/hooke/history/energy  1 "
-#modelName="hertz_incremental_energy"
-modelName="SubStep_hooke_history_energy"
+#model="gran/hooke/history/energy  1 "
+model="gran/hertz/history/energy  1 "
+#modelName="SubStep_hertz_incremental_energy"
+#modelName="SubStep_hooke_history_energy"
+modelName="SubStep_hertz_integral_energy"
 #for option in 0 1 2
 for option in 0 # 0 2 4
 do
 #option=1
 cofI=1
 cofD=0
-enI=0
-enD=7
+enI=1
+enD=0
 poI=0
 poD=3
 rootName=${modelName}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
