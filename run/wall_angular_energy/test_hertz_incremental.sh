@@ -73,7 +73,7 @@ do
 	dump			mydmp all custom 10 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
 	run			    8000 upto		
 EOF
-python /home/lagar/LIGGGHTS/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${rootName}_${a}_ files/energy-${rootName}.${a}.csv
+python  ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${rootName}_${a}_ files/energy-${rootName}.${a}.csv
 sh plot_collision_energy_wall.sh "${rootName} ANG = ${a}" ${rootName}_${a}_
 done
 #python /home/lagar/LIGGGHTS/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat

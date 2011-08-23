@@ -368,7 +368,6 @@ void PairGranHertzHistoryEnergy::compute(int eflag, int vflag, int addflag)
         if (mask[j] & freeze_group_bit) meff = mi;
 
         deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
-        printf("kn = %g kt = %g",kn,kt);
         damp = gamman*vnnr*rsqinv;  
         ccel = kn*(radsum-r)*rinv - damp;
         double fn_pot = kn*(radsum-r);
