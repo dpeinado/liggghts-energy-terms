@@ -163,13 +163,28 @@ class dumpPCOM:
         deh=self.names["f_DEH"]
         deh_flag=1
       except:
-         deh_flag=0                 
-         
+         deh_flag=0                       
       try:
           mass=self.names["mass"]
           mass_flag=1
       except:
-          mass_flag=0
+          mass_flag=0          
+      try:
+          ePGp=self.names["v_ePGp"]
+          ePGp_flag=1
+      except:
+          ePGp_flag=0       
+      try:
+          eKinLp=self.names["c_eKinLp"]
+          eKinLp_flag=1
+      except:
+          eKinLp_flag=0              
+      try:
+          eKinRp=self.names["c_eKinRp"]
+          eKinRp_flag=1
+      except:
+          eKinRp_flag=0   
+                             
       n=0
       while snap:
           vtkFile = root+str(n).zfill(10)+".vtk"
@@ -255,6 +270,21 @@ class dumpPCOM:
               print >>fs,"LOOKUP_TABLE default"
               for atom in atoms:  #loop all atoms
                 print >>fs,atom[mass]                                              
+          if ePGp_flag:
+              print >>fs,"SCALARS ePGp float 1"
+              print >>fs,"LOOKUP_TABLE default"
+              for atom in atoms:  #loop all atoms
+                print >>fs,atom[ePGp]        
+          if eKinLp_flag:
+              print >>fs,"SCALARS eKinLp float 1"
+              print >>fs,"LOOKUP_TABLE default"
+              for atom in atoms:  #loop all atoms
+                print >>fs,atom[eKinLp]                      
+          if eKinRp_flag:
+              print >>fs,"SCALARS eKinRp float 1"
+              print >>fs,"LOOKUP_TABLE default"
+              for atom in atoms:  #loop all atoms
+                print >>fs,atom[eKinRp]                                                      
           fs.close()          
           snap = self.read_snapshot(f)
           n+=1
