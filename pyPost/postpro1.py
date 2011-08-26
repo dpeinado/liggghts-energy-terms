@@ -1,8 +1,12 @@
 from math import *             # any function could be used by set()
 from numpy import *
+import sys,os
 
+if len(sys.argv) < 2:
+  raise StandardError, "Syntax: postpro1.py energy-file "
 
-fs = open('pitos.csv','rt')
+dumpfile = sys.argv[1]
+fs = open(dumpfile,'rt')
 datos=genfromtxt(fs, dtype=float, delimiter=' ', skip_header=2)
 n1=datos.shape[0]
 denom=zeros(n1)
@@ -18,4 +22,5 @@ results[:, 0]=datos[:, 0]
 results[:, 1]=datos[:, 3]
 results[:, 2]=datos[:, 4]
 results[:, 3]=datos[:, 5]
-savetxt('myfile.csv', results)
+myfileoutput = 'print_files/'+os.path.splitext(os.path.basename(dumpfile))[0]+'_post'+'.csv'
+savetxt(myfileoutput, results)
