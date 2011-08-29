@@ -80,7 +80,7 @@ EOF
 python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${rootName}_${a}_
 sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${rootName}_${a}_
 done
-python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat
+python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat ${cofI}"."${cofD}
 done
 echo
 echo

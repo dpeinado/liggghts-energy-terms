@@ -26,10 +26,11 @@ from dumpPCOM import dumpPCOM
 for cual in sys.argv:
     print cual
 
-if len(sys.argv) < 3:
-  raise StandardError, "Syntax: pyCB.py input output"
+if len(sys.argv) < 4:
+  raise StandardError, "Syntax: pyCB.py input output COF"
 dumpfiles = sys.argv[1]
 outputfiles=sys.argv[2]
+cof= float(sys.argv[3])
 
 fdumps=[]
 for infile in glob.glob(dumpfiles):   
@@ -40,6 +41,6 @@ for fileNa in sorted_nicely(fdumps):
     if fileNa.endswith('*'):
         continue
     d = dumpPCOM(fileNa)
-    d.collisionBIN()
+    d.collisionBIN(cof)
     print>>  fs , d.inicio,  d.final    
 fs.close()    
