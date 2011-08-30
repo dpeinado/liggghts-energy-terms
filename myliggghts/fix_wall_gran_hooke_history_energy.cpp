@@ -419,7 +419,7 @@ inline void FixWallGranHookeHistoryEnergy::addCohesionForce(int &ip, double &r, 
 
 /* ---------------------------------------------------------------------- */
 
-inline void FixWallGranHookeHistoryEnergy::deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK)
+void FixWallGranHookeHistoryEnergy::deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK)
 {
     double sqrtval = sqrt(reff_wall);
 

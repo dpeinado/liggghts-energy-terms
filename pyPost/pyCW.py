@@ -43,5 +43,5 @@ for fileNa in sorted_nicely(fdumps):
         continue
     d = dumpPCOM(fileNa)
     d.collisionWALL(zwall,  cof)
-    print>>  fs , d.inicio,  d.final    
+    print>>  fs , d.inicio,  d.final ,  d.rota
 fs.close()    

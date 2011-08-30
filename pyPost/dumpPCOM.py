@@ -339,15 +339,21 @@ class dumpPCOM:
             vt3 = vr3 - vn3;
             cr1 = r1-0.5*deltan;
             cr2= r2-0.5*deltan;
-            wr1 = (cr1*atom1[omegax] + cr2*atom2[omegax]) /rmod;
-            wr2 = (cr1*atom1[omegay] + cr2*atom2[omegay]) /rmod;
-            wr3 = (cr1*atom1[omegaz] + cr2*atom2[omegaz]) /rmod;
-            vtr1 = vt1 - (delz*wr2-dely*wr3);
-            vtr2 = vt2 - (delx*wr3-delz*wr1);
-            vtr3 = vt3 - (dely*wr1-delx*wr2);
+            wr1 = (cr1*atom1[omegax] + cr2*atom2[omegax]);
+            wr2 = (cr1*atom1[omegay] + cr2*atom2[omegay]);
+            wr3 = (cr1*atom1[omegaz] + cr2*atom2[omegaz]); 
+            wrot = sqrt(wr1*wr1+wr2*wr2+wr3*wr3);
+            vtr1 = vt1 - (delz*wr2-dely*wr3) /rmod;
+            vtr2 = vt2 - (delx*wr3-delz*wr1) /rmod;
+            vtr3 = vt3 - (dely*wr1-delx*wr2) /rmod;
             vrel = vtr1*vtr1 + vtr2*vtr2 + vtr3*vtr3;
             vrel = sqrt(vrel);                
             if firstTime:
+                vtnorm = sqrt(vt1*vt1+vt2*vt2+vt3*vt3)
+                self.t1=vt1/vtnorm
+                self.t2=vt2/vtnorm
+                self.t3=vt3/vtnorm
+                self.vti=vtnorm
                 phi = fabs(vrel/vnnr)
                 self.inicio=phi
                 self.vtr1=vtr1
@@ -366,9 +372,13 @@ class dumpPCOM:
             snap = self.read_snapshot(f)
         self.final = phi
         self.en = fabs(vnnr/self.vni)
- #       self.inicio = 2.0/(1+self.en)*self.inicio/mycof
- #       self.final = 2.0/(1+self.en)*self.final/mycof
-        print self.inicio,  self.final,  self.en
+        self.inicio = 2.0/(1+self.en)*self.inicio/mycof
+        self.final = 2.0/(1+self.en)*self.final/mycof
+        self.rota = 2.0/(1+self.en)*wrot/self.vni/mycof
+        if(self.vti>0):
+            self.et=(vt1*self.t1+vt2*self.t2+vt3*self.t3)/self.vti
+        else: self.et=1
+        print self.inicio,  self.final, self.rota,  self.en, self.et
     def collisionWALL(self, myzwall, mycof):       
         firstTime=True
         file = self.flist
@@ -416,13 +426,13 @@ class dumpPCOM:
             vt3 = vr3 - vn3;
             cr1 = r1-0.5*deltan;
 
-            wr1 = (cr1*atom1[omegax] ) /rmod;
-            wr2 = (cr1*atom1[omegay] ) /rmod;
-            wr3 = (cr1*atom1[omegaz] ) /rmod;
-            
-            vtr1 = vt1 - (delz*wr2-dely*wr3);
-            vtr2 = vt2 - (delx*wr3-delz*wr1);
-            vtr3 = vt3 - (dely*wr1-delx*wr2);
+            wr1 = (cr1*atom1[omegax] );
+            wr2 = (cr1*atom1[omegay] );
+            wr3 = (cr1*atom1[omegaz] );
+            wrot = sqrt(wr1*wr1+wr2*wr2+wr3*wr3);
+            vtr1 = vt1 - (delz*wr2-dely*wr3)/rmod;
+            vtr2 = vt2 - (delx*wr3-delz*wr1)/rmod;
+            vtr3 = vt3 - (dely*wr1-delx*wr2)/rmod;
             vrel = vtr1*vtr1 + vtr2*vtr2 + vtr3*vtr3;
             vrel = sqrt(vrel);                
             if firstTime:
@@ -444,8 +454,9 @@ class dumpPCOM:
             snap = self.read_snapshot(f)
         self.final = phi
         self.en = fabs(vnnr/self.vni)
-#        self.inicio = 2.0/(1+self.en)*self.inicio/mycof
- #       self.final = 2.0/(1+self.en)*self.final/mycof
+        self.inicio = 2.0/(1+self.en)*self.inicio/mycof
+        self.final = 2.0/(1+self.en)*self.final/mycof
+        self.rota = 2.0/(1+self.en)*wrot/self.vni/mycof
         print self.inicio,  self.final ,  self.en
     def writeGRAPH(self, root, enFile):      
         energyFlag = False

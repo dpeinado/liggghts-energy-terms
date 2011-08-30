@@ -115,7 +115,7 @@ void FixWallGranHertzHistoryEnergy::init_substyle()
 #include "pair_gran_defs.h"
 #undef LMP_GRAN_DEFS_DEFINE
 
-inline void FixWallGranHertzHistoryEnergy::deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK)
+void FixWallGranHertzHistoryEnergy::deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK)
 {
 
     double sqrtval = sqrt(reff_wall*deltan);
@@ -125,7 +125,6 @@ inline void FixWallGranHertzHistoryEnergy::deriveContactModelParams(int ip, doub
 
     kn=4./3.*Yeff[itype][atom_type_wall]*sqrtval;
     gamman=-2.*sqrtFiveOverSix*betaeff[itype][atom_type_wall]*sqrt(Sn*meff_wall);
-
     switch(constflag){
     case 0:
     	kt=St;
@@ -153,7 +152,6 @@ inline void FixWallGranHertzHistoryEnergy::deriveContactModelParams(int ip, doub
     kt /= force->nktv2p;
     epK = 0.40; // this is 2/5 because the integration from x^3/2
     return;
-
 }
 
 #define LMP_GRAN_DEFS_UNDEFINE

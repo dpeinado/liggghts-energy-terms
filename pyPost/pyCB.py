@@ -42,5 +42,5 @@ for fileNa in sorted_nicely(fdumps):
         continue
     d = dumpPCOM(fileNa)
     d.collisionBIN(cof)
-    print>>  fs , d.inicio,  d.final    
+    print>>  fs , d.inicio,  d.final ,  d.rota,  d.en,  d.et
 fs.close()    

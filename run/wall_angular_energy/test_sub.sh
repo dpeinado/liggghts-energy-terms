@@ -1,12 +1,14 @@
 #!/bin/bash
 Vangle=0
 Vmod=10
-#model="gran/hertz/incremental/energy  1 0 "
-model="gran/hooke/history/energy  1 "
+#model="gran/hooke/history/energy  1 "
 #model="gran/hertz/history/energy  1 "
-#modelName="SubStep_hertz_incremental_energy"
-modelName="SubStep_hooke_history_energy"
+#modelwall=${model}
+model="gran/hertz/incremental/energy  1 0"
+modelwall="gran/hertz/incremental/energy  1"
+#modelName="SubStep_hooke_history_energy"
 #modelName="SubStep_hertz_integral_energy"
+modelName="SubStep_hertz_incremental_energy"
 for option in 0 # 0 2 4
 do
 cofI=1
@@ -17,7 +19,7 @@ poI=0
 poD=3
 rootName=${modelName}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 echo pair_style ${model} ${option}
-for a in 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+for a in 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 74 76 78 79 80 82 83 84 85
 do
 	Vangle=0
 	Vmod=10
@@ -46,7 +48,7 @@ do
 	fix 		 	m5 all property/global characteristicVelocity scalar 10
 	pair_style		${model} ${option}
 	pair_coeff		* *
-	fix			zwall all wall/${model} 0 zplane 0 NULL 1
+	fix			zwall all wall/${modelwall} 0 zplane 0 NULL 1
 	communicate		single vel yes
 	fix    			1 all nve/sphere
 	timestep		0.0000001

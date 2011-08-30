@@ -24,7 +24,7 @@ See the README file in the top-level LAMMPS directory.
 
 #ifdef FIX_CLASS
 
-FixStyle(wall/gran/hertz/history,FixWallGranHertzHistory)
+FixStyle(wall/gran/hertz/history/energy,FixWallGranHertzHistoryEnergy)
 
 #else
 
@@ -43,7 +43,7 @@ class FixWallGranHertzHistoryEnergy : public FixWallGranHookeHistoryEnergy {
   void updatePtrs(); // Add update pointers
  protected:
 
- void deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK);
+ virtual void deriveContactModelParams(int ip, double deltan,double meff_wall, double &kn, double &kt, double &gamman, double &gammat, double &xmu,double &rmu,double &epK);
 
 };
 
