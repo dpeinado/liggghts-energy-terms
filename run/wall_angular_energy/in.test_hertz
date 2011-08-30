@@ -28,7 +28,7 @@ run 1
 	
 compute			rot_e all erotate/sphere
 compute			eKin  all ke
-compute		  epotN all reduce sum f_CPEn
+compute		  	epotN all reduce sum f_CPEn
 compute			edisN all reduce sum f_CDEn
 compute			epotT all reduce sum f_CPEt
 compute			edisTV all reduce sum f_CDEVt

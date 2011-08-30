@@ -288,7 +288,7 @@ class dumpPCOM:
           fs.close()          
           snap = self.read_snapshot(f)
           n+=1
-    def collisionBIN(self,mycof):
+    def collisionBIN(self, mycof):
        
         firstTime=True
         file = self.flist
@@ -366,10 +366,87 @@ class dumpPCOM:
             snap = self.read_snapshot(f)
         self.final = phi
         self.en = fabs(vnnr/self.vni)
-        self.inicio = 2.0/(1+self.en)*self.inicio/mycof
-        self.final = 2.0/(1+self.en)*self.final/mycof
-        print self.inicio,  self.final
+ #       self.inicio = 2.0/(1+self.en)*self.inicio/mycof
+ #       self.final = 2.0/(1+self.en)*self.final/mycof
+        print self.inicio,  self.final,  self.en
+    def collisionWALL(self, myzwall, mycof):       
+        firstTime=True
+        file = self.flist
+        f=open(file)      
+        snap = self.read_snapshot(f)
+        n=snap.natoms
+        if n <> 1:
+            raise StandardError,"Number of atoms <> 1"
+        x = self.names["x"]
+        y = self.names["y"]
+        z = self.names["z"]
+        fx= self.names["fx"]
+        fy= self.names["fy"]
+        fz= self.names["fz"]
+        vx= self.names["vx"]
+        vy= self.names["vy"]
+        vz= self.names["vz"]
+        omegax=self.names["omegax"]
+        omegay=self.names["omegay"]
+        omegaz=self.names["omegaz"]
+        r = self.names["radius"]
+         
+        while snap:
+            atoms=snap.atoms
+            atom1=atoms[0]
+            delx = 0
+            dely = 0
+            delz = atom1[z] - myzwall 
+            rsq = delx*delx+dely*dely+delz*delz
+            rmod=sqrt(rsq)
+            r1 = atom1[r]
+            deltan=r1-rmod
+      
+            vr1 = atom1[vx]
+            vr2 = atom1[vy]
+            vr3 = atom1[vz]
+            vnnr = (vr1*delx+vr2*dely+vr3*delz)/rmod
+      
+            vn1 = delx*vnnr/rmod
+            vn2 = dely*vnnr/rmod
+            vn3 = delz*vnnr/rmod
         
+            vt1 = vr1 - vn1;
+            vt2 = vr2 - vn2;
+            vt3 = vr3 - vn3;
+            cr1 = r1-0.5*deltan;
+
+            wr1 = (cr1*atom1[omegax] ) /rmod;
+            wr2 = (cr1*atom1[omegay] ) /rmod;
+            wr3 = (cr1*atom1[omegaz] ) /rmod;
+            
+            vtr1 = vt1 - (delz*wr2-dely*wr3);
+            vtr2 = vt2 - (delx*wr3-delz*wr1);
+            vtr3 = vt3 - (dely*wr1-delx*wr2);
+            vrel = vtr1*vtr1 + vtr2*vtr2 + vtr3*vtr3;
+            vrel = sqrt(vrel);                
+            if firstTime:
+                phi = fabs(vrel/vnnr)
+                self.inicio=phi
+                self.vtr1=vtr1
+                self.vtr2=vtr2
+                self.vtr3=vtr3
+                self.vni=vnnr
+                firstTime=False                
+            else:
+                phi = fabs(vrel/self.vni)
+            modulo = self.vtr1*vtr1+self.vtr2*vtr2+self.vtr3*vtr3
+            if modulo <>0.0:
+                signo=modulo/fabs(modulo)            
+            else:
+                signo=0.0
+            phi=phi*signo
+            snap = self.read_snapshot(f)
+        self.final = phi
+        self.en = fabs(vnnr/self.vni)
+#        self.inicio = 2.0/(1+self.en)*self.inicio/mycof
+ #       self.final = 2.0/(1+self.en)*self.final/mycof
+        print self.inicio,  self.final ,  self.en
     def writeGRAPH(self, root, enFile):      
         energyFlag = False
         IKE = 0.0

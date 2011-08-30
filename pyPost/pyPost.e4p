@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.6.dtd">
 <!-- eric4 project file for project pyPost -->
-<!-- Saved: 2011-08-24, 12:19:10 -->
+<!-- Saved: 2011-08-30, 09:42:32 -->
 <!-- Copyright (C) 2011 ,  -->
 <Project version="4.6">
   <Language>en</Language>
@@ -23,6 +23,7 @@
     <Source>pyWallSin.py</Source>
     <Source>pyEnCheck.py</Source>
     <Source>postpro1.py</Source>
+    <Source>pyCW.py</Source>
   </Sources>
   <Forms>
   </Forms>

@@ -2,11 +2,11 @@
 Vangle=0
 Vmod=10
 #model="gran/hertz/incremental/energy  1 0 "
-#model="gran/hooke/history/energy  1 "
-model="gran/hertz/history/energy  1 "
+model="gran/hooke/history/energy  1 "
+#model="gran/hertz/history/energy  1 "
 #modelName="SubStep_hertz_incremental_energy"
-#modelName="SubStep_hooke_history_energy"
-modelName="SubStep_hertz_integral_energy"
+modelName="SubStep_hooke_history_energy"
+#modelName="SubStep_hertz_integral_energy"
 #for option in 0 1 2
 for option in 0 # 0 2 4
 do
@@ -58,7 +58,7 @@ do
 	communicate		single vel yes
 	fix    			1 all nve/sphere
 	timestep		0.0000001
-	run 1
+	run 0
 	compute			rot_e all erotate/sphere
 	compute		    	epotN all reduce sum f_CPEn
 	compute			edisN all reduce sum f_CDEn
@@ -84,4 +84,29 @@ python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/p
 done
 echo
 echo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
