@@ -14,7 +14,7 @@ do
 cofI=0
 cofD=1
 enI=0
-enD=35
+enD=85
 poI=0
 poD=3
 rootName=${modelName}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}

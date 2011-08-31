@@ -14,7 +14,7 @@ do
     pitos4="${pitos4} \"${name}\" using 1:5 title \"${name}\" with lp ls $a,"
     a=`calc $a+1`
 done
-longitud=`calc "${#pitos}-1"`
+longitud=`calc "${#pitos1}-1"`
 gnuplot<<EOF
 set term png size 1024,780
 set grid
