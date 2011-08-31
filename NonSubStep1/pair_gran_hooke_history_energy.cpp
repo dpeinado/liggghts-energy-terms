@@ -161,13 +161,13 @@ inline void PairGranHookeHistoryEnergy::deriveContactModelParams(int &ip, int &j
     gamman=sqrt(4.*meff*kn/(1.+(M_PI/coeffRestLog[itype][jtype])*(M_PI/coeffRestLog[itype][jtype])));
     switch(constflag){
     case 0:
-    	kt = 2./7.*kn;
-    	gammat=2./7.*gamman;
-    	break;
-    case 1:
     	kt=Kappa[itype][jtype]*kn;
     	gammat=gamman;
     	break;
+    case 1:
+    	kt = 2./7.*kn;
+    	gammat=2./7.*gamman;
+    	break;    
     case 2:
     	kt=kn;
     	gammat=gamman;

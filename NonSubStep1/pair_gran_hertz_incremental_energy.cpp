@@ -164,13 +164,13 @@ inline void PairGranHertzIncrementalEnergy::deriveContactModelParams(int &ip, in
 
     switch(constflag){
     case 0:
-    	kt = 2./7.*kn;
-    	gammat=2./7.*gamman;
-    	break;
-    case 1:
     	kt=St;
     	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
     	break;
+    case 1:
+    	kt = 2./7.*kn;
+    	gammat=2./7.*gamman;
+    	break;    
     case 2:
     	kt=kn;
     	gammat=gamman;
@@ -388,9 +388,9 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         // shear history effects
 
 
-        double &fe0x = allshear[dnum*jj+0];
-        double &fe0y = allshear[dnum*jj+1];
-        double &fe0z = allshear[dnum*jj+2];
+        double &fsix = allshear[dnum*jj+0];
+        double &fsiy = allshear[dnum*jj+1];
+        double &fsiz = allshear[dnum*jj+2];
         double &CDEnij= allshear[dnum*jj+3];
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
@@ -402,11 +402,11 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	dTz = vtr3*dt;
 
         // The pair is rotatin as a rigid solid
-    	rsht = fe0x*delx + fe0y*dely + fe0z*delz;
+    	rsht = fsix*delx + fsiy*dely + fsiz*delz;
         rsht *= rsqinv;
-        fe0x -= rsht*delx;
-        fe0y -= rsht*dely;
-        fe0z -= rsht*delz;
+        fsix -= rsht*delx;
+        fsiy -= rsht*dely;
+        fsiz -= rsht*delz;
         // Now the previous tangential elastic force is in the new tangential plane
 
         rsht = shear[0]*delx + shear[1]*dely + shear[2]*delz;
@@ -414,106 +414,37 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	shear[0] -= rsht*delx;
     	shear[1] -= rsht*dely;
     	shear[2] -= rsht*delz;
-
-
-    	double delta0x = shear[0];
-        double delta0y = shear[1];
-        double delta0z = shear[2];
-        double delta02 = (delta0x*delta0x+delta0y*delta0y+delta0z*delta0z);
-        double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
-
-    	double dfex = - kt*dTx;
-    	double dfvx = - gammat*vtr1;
-    	double dfey = - kt*dTy;
-    	double dfvy = - gammat*vtr2;
-    	double dfez = - kt*dTz;
-    	double dfvz = - gammat*vtr3;
-
-   		double fe1x = fe0x+dfex;
-    	double fe1y = fe0y+dfey;
-    	double fe1z = fe0z+dfez;
-
-    	fs1 = fe0x+dfex+dfvx;
-    	fs2 = fe0y+dfey+dfvy;
-    	fs3 = fe0z+dfez+dfvz;
-
-        fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
-        double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
-        fn = xmu * fabs(ccel*r);
-        double fcomp = 0;
-		double dfx = 0;
-		double dfy = 0;
-		double dfz = 0;
-
-        if (fe>fs){
-        	fcomp = fe;
-        	dfx = dfex;
-    		dfy = dfey;
-    		dfz = dfez;
-        }else{
-        	fcomp = fs;
-        	dfx = dfex+dfvx;
-    		dfy = dfey+dfvy;
-    		dfz = dfez+dfvz;
-        }
-
-        if (fcomp > fn) {
-        	if (fe0 <= fn){
-        		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
-        		double lambda = (fe0x*dfx+fe0y*dfy+fe0z*dfz)/df2;
-        		lambda = -lambda+sqrt(lambda*lambda+(fn*fn-fe0*fe0)/df2 );
-        		if ( (lambda<0) || (lambda>1) ) error->all("Illegal value of lambda");
-        		fs1 = fe0x + lambda*dfx;
-        		fs2 = fe0y + lambda*dfy;
-        		fs3 = fe0z + lambda*dfz;
-                fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
-
-                if(shearupdate){
-                	shear[0]+=lambda*dTx;
-                	shear[1]+=lambda*dTy;
-                	shear[2]+=lambda*dTz;
-                }
-        		fe1x = fe0x+lambda*dfex;
-        		fe1y = fe0y+lambda*dfey;
-        		fe1z = fe0z+lambda*dfez;
-        		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz)*0.5;
-        		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz)*0.5;
-        		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz)*0.5;
-
-        		//printf("1111111111111111111111111111111111111111111111111111111111111111111111111\n");
-        	}else{
-        		double beta = fn/fe0;
-        		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
-        		fe0x *= beta;
-        		fe0y *= beta;
-        		fe0z *= beta;
-        		fs1 = fe0x;
-        		fs2 = fe0y;
-        		fs3 = fe0z;
-        		myEdisTV = 0.0;
-        		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z)*0.5;
-        		myEdisTF = ( -(dTx*fe0x+dTy*fe0y+dTz*fe0z) -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z))*0.5;
-        		if(shearupdate){
-        			shear[0] = -fe0x/kt;
-        		    shear[1] = -fe0y/kt;
-        		    shear[2] = -fe0z/kt;
-        		}
-        	}
-        } else {
-    		fe0x += dfex;
-    		fe0y += dfey;
-    		fe0z += dfez;
-        	myWorkT = -(fe0x*dTx + fe0y*dTy + fe0z*dTz)*0.5;
-            myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat*0.5;
-            myEdisTF=0.0;
-            if(shearupdate){
-            	shear[0] += dTx;
-            	shear[1] += dTy;
-            	shear[2] += dTz;
-            }
-        }
-
-
+		if(shearupdate){
+			fsix += -(kt*dTx);
+        	fsiy += -(kt*dTy);
+        	fsiz += -(kt*dTz);
+        	fs1 = fsix;
+        	fs2 = fsiy;
+        	fs3 = fsiz;        	
+			fs = sqrt(fs1*fs1 + fs2*fs2 + fs3*fs3);
+			fn = xmu * fabs(ccel*r);
+	        if (fs > fn) {
+				fs1 *= fn/fs;
+				fs2 *= fn/fs;
+				fs3 *= fn/fs;
+				fsix = fs1;
+				fsiy = fs2;
+				fsiz = fs3;
+				myWorkT = 0.0;
+				myEdisTF = -0.5*(fs1*dTx + fs2*dTy + fs3*dTz);
+				myEdisTV=0.0;
+			} else {
+				double dfv1 = (gammat*vtr1);
+				double dfv2 = (gammat*vtr2);
+				double dfv3 = (gammat*vtr3);
+				myWorkT= -0.5*(fs1*dTx+fs2*dTy+fs3*dTz);
+				myEdisTV= 0.5*(dfv1*dTx+dfv2*dTy+dfv3*dTz);
+				myEdisTF=0.0;
+				fs1 -= dfv1;
+				fs2 -= dfv2;
+				fs3 -= dfv3;				
+			}
+		}
         // forces & torques
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;

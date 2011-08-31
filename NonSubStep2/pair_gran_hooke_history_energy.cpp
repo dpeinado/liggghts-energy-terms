@@ -161,13 +161,13 @@ inline void PairGranHookeHistoryEnergy::deriveContactModelParams(int &ip, int &j
     gamman=sqrt(4.*meff*kn/(1.+(M_PI/coeffRestLog[itype][jtype])*(M_PI/coeffRestLog[itype][jtype])));
     switch(constflag){
     case 0:
-    	kt = 2./7.*kn;
-    	gammat=2./7.*gamman;
-    	break;
-    case 1:
     	kt=Kappa[itype][jtype]*kn;
     	gammat=gamman;
     	break;
+    case 1:
+    	kt = 2./7.*kn;
+    	gammat=2./7.*gamman;
+    	break;    
     case 2:
     	kt=kn;
     	gammat=gamman;
@@ -384,19 +384,16 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         vrel = sqrt(vrel);
 
         // shear history effects
-
-        dTx=vtr1*dt;
-        dTy=vtr2*dt;
-        dTz=vtr3*dt;
+        dTx = vtr1*dt;
+        dTy = vtr2*dt;
+        dTz = vtr3*dt;
 
         shear = &allshear[dnum*jj];
         double &CDEnij= allshear[dnum*jj+3];
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
-        dTx = vtr1*dt;
-        dTy = vtr2*dt;
-        dTz = vtr3*dt;
+
 
         if (shearupdate)
         {

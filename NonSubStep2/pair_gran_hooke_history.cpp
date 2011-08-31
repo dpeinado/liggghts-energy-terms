@@ -113,13 +113,13 @@ inline void PairGranHookeHistory::deriveContactModelParams(int &ip, int &jp,doub
     gamman=sqrt(4.*meff*kn/(1.+(M_PI/coeffRestLog[itype][jtype])*(M_PI/coeffRestLog[itype][jtype])));
     switch(constflag){
     case 0:
-    	kt = 2./7.*kn;
-    	gammat=2./7.*gamman;
-    	break;
-    case 1:
     	kt=Kappa[itype][jtype]*kn;
     	gammat=gamman;
     	break;
+    case 1:
+    	kt = 2./7.*kn;
+    	gammat=2./7.*gamman;
+    	break;    
     case 2:
     	kt=kn;
     	gammat=gamman;
@@ -318,9 +318,9 @@ void PairGranHookeHistory::compute(int eflag, int vflag,int addflag)
 
         // tangential forces = shear + tangential velocity damping
 
-         fs1 = - (kt*shear[0]);
-         fs2 = - (kt*shear[1]);
-         fs3 = - (kt*shear[2]);
+         fs1 = - (kt*shear[0]+gammat*vtr1);
+         fs2 = - (kt*shear[1]+gammat*vtr2);
+         fs3 = - (kt*shear[2]+gammat*vtr3);
 
          // rescale frictional displacements and forces if needed
 
@@ -330,20 +330,14 @@ void PairGranHookeHistory::compute(int eflag, int vflag,int addflag)
          // energy loss from sliding or damping
          if (fs > fn) {
              if (shrmag != 0.0) {
-                 fs1 *= fn/fs;
-                 fs2 *= fn/fs;
-                 fs3 *= fn/fs;
-                 shear[0] = -fs1/kt;
-                 shear[1] = -fs2/kt;
-                 shear[2] = -fs3/kt;
+				shear[0] = (fn/fs) * (shear[0] + gammat*vtr1/kt)-gammat*vtr1/kt;
+				shear[1] = (fn/fs) * (shear[1] + gammat*vtr2/kt)-gammat*vtr2/kt;
+				shear[2] = (fn/fs) * (shear[2] + gammat*vtr3/kt)-gammat*vtr3/kt;  				 
+                fs1 *= fn/fs;
+                fs2 *= fn/fs;
+                fs3 *= fn/fs;                
              }
              else fs1 = fs2 = fs3 = 0.0;
-         }
-         else
-         {
-             fs1 -= (gammat*vtr1);
-             fs2 -= (gammat*vtr2);
-             fs3 -= (gammat*vtr3);
          }
 
 
