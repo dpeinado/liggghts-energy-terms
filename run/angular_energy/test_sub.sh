@@ -1,27 +1,29 @@
 #!/bin/bash
 Vangle=0
 Vmod=10
-#model="gran/hertz/incremental/energy  1 0 "
+model="gran/hertz/incremental/energy  1 0 "
 #model="gran/hooke/history/energy  1 "
-model="gran/hertz/history/energy  1 "
-#modelName="SubStep_hertz_incremental_energy"
+#model="gran/hertz/history/energy  1 "
+modelName="SubStep_hertz_incremental_energy"
 #modelName="SubStep_hooke_history_energy"
-modelName="SubStep_hertz_integral_energy"
-#for option in 0 1 2
-for option in 0 # 0 2 4
+#modelName="SubStep_hertz_integral_energy"
+for option in 0 1 2
+#for option in 0 2 4
 do
 #option=1
-cofI=0
-cofD=1
+cofI=1
+cofD=0
 enI=0
-enD=85
+enD=5
 poI=0
 poD=3
 rootName=${modelName}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 echo pair_style ${model} ${option}
-for a in 0.1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+#for a in 0.1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+for a in 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 do
-	angulo="`calc "atan(${a}/20.0)"`"
+#	angulo="`calc "atan(${a}/20.0)"`"
+	angulo="`calc "${a}*atan(1.0)/45.0"`"
 	echo ${angulo}
 	xsecond="`calc "49.5+cos(${angulo})"`"
 	ysecond="`calc "50.0-sin(${angulo})"`"
@@ -29,7 +31,7 @@ do
 	Vmod=10
 	Vx="`calc "${Vmod}*cos(3.141592/180.0*${Vangle})"`"
 	Vy="`calc "${Vmod}*sin(3.141592/180.0*${Vangle})"`"
-	./lmp_serial_debug << EOF
+	./lmp_subStep << EOF
 	echo both
 	dimension 3
 	atom_style granular
