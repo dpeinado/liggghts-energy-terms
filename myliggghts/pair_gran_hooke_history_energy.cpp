@@ -374,23 +374,26 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         ccel = kn*(radsum-r)*rinv - damp;
         double fn_pot = kn*(radsum-r);
         //******************************************************************************************************************
-/*        if(ccel<0) {
+        if(ccel<0) {
         	fn_pot = 0.0;
         	ccel   = 0.0;
         	damp   = 0.0;
-        	if (touch[jj]){
+        	deltan = 0.0;
+        	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+/*        	if (touch[jj]){
         		touch[jj] = 0;
         		shear = &allshear[dnum*jj];
         		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
         		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
-        		DEH[i]+=(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
-        		DEH[j]+=(CDEnij+CDEVtij+CDEFtij+CTFWij);
+        		DEH[i]+=(CDEnij*meff_i+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        		DEH[j]+=(CDEnij*meff_j+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
-        	}
-        }*/
+        	}*/
+        	//return;
+        }
 
         //******************************************************************************************************************
 

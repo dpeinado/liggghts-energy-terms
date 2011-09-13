@@ -19,14 +19,16 @@ poD=3
 rootName=${modelName}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 echo pair_style ${model} ${option}
 #for a in 0 #1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-for a in 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+for a in 0 #5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 do
 #	angulo="`calc "atan(${a}/20.0)"`"
-	angulo="`calc "${a}*atan(1.0)/45.0"`"
-	echo ${angulo}
-	xsecond="`calc "49.0+1.5*cos(${angulo})"`"
-	ysecond="`calc "50.0-1.5*sin(${angulo})"`"
-	echo ${angulo}, ${xsecond}, ${ysecond}
+	anguloB="`calc "${a}*atan(1.0)/45.0"`"
+	angulo="`echo ${anguloB} | sed 's/^~//g'`"
+	xsecondB="`calc "49.0+1.5*cos(${angulo})"`"
+	xsecond="`echo ${xsecondB} | sed 's/^~//g'`"
+	ysecondB="`calc "50.0-1.5*sin(${angulo})"`"
+	ysecond="`echo ${ysecondB} | sed 's/^~//g'`"
+	echo ${angulo}, ${anguloB}, ${xsecondB}, ${xsecond}, ${ysecondB}, ${ysecond}
 	Vangle=0
 	Vmod=10
 	Vx="`calc "${Vmod}*cos(3.141592/180.0*${Vangle})"`"
@@ -83,7 +85,8 @@ do
 EOF
 python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${rootName}_${a}_
 sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${rootName}_${a}_
-pause -1
+#pause -1
+read -n 1 -s
 done
 python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat ${cofI}"."${cofD}
 #done
