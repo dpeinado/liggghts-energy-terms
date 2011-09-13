@@ -214,6 +214,8 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
   int *touch,**firsttouch;
   double *shear,*allshear,**firstshear;
 
+  int print_flag=0;
+
   if (eflag || vflag) ev_setup(eflag,vflag);
   else evflag = vflag_fdotr = 0;
 
@@ -375,6 +377,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         double fn_pot = kn*(radsum-r);
         //******************************************************************************************************************
         if(ccel<0) {
+        	print_flag=1;
         	fn_pot = 0.0;
         	ccel   = 0.0;
         	damp   = 0.0;
@@ -524,9 +527,17 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // forces & torques
 
+        if(print_flag){
+        	printf("fs1 = %f fs2 = %f fs3 = %f",fs1,fs2,fs3);
+        }
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
         fz = delz*ccel + fs3;
+
+        if(print_flag){
+        	printf("fs1 = %f fs2 = %f fs3 = %f\n",fs1,fs2,fs3);
+        	printf("fx = %f fy = %f fz = %f\n",fx,fy,fz);
+        }
 
         tor1 = rinv * (dely*fs3 - delz*fs2);
         tor2 = rinv * (delz*fs1 - delx*fs3);
