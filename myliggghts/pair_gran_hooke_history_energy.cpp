@@ -207,7 +207,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
   double vr1,vr2,vr3,vnnr,vn1,vn2,vn3,vt1,vt2,vt3,wrmag;
   double wr1,wr2,wr3;
   double vtr1,vtr2,vtr3,vrel;
-  double meff,damp,ccel,tor1,tor2,tor3;
+  double meff,damp,ccel,tor1,tor2,tor3, meff_i,meff_j;
   double fn,fs,fs1,fs2,fs3;
   double shrmag,rsht, cri, crj;
   int *ilist,*jlist,*numneigh,**firstneigh;
@@ -296,6 +296,29 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
       radj = radius[j];
       radsum = radi + radj;
 
+      double mi,mj;
+      if (rmass) {
+        mi=rmass[i];
+        mj=rmass[j];
+      } else {
+        itype = type[i];
+        jtype = type[j];
+        mi=mass[itype];
+        mj=mass[jtype];
+      }
+      if (fr)
+      {
+         if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+         if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+      }
+      meff=mi*mj/(mi+mj);
+      meff_i=meff/mi;
+      meff_j=meff/mj;
+      if (mask[i] & freeze_group_bit) meff = mj;
+      if (mask[j] & freeze_group_bit) meff = mi;
+
+      //printf("meff = %f\t meff_i = %f\t meff_j = %f\n", meff, meff_i, meff_j);
+
       if (rsq >= radsum*radsum) {
         	if (touch[jj]){
         		touch[jj] = 0;
@@ -304,8 +327,8 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
-        		DEH[i]+=(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
-        		DEH[j]+=(CDEnij+CDEVtij+CDEFtij+CTFWij);
+        		DEH[i]+=(CDEnij*meff_i+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        		DEH[j]+=(CDEnij*meff_j+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
         	}
@@ -344,24 +367,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // normal forces = Hookian contact + normal velocity damping
 
-        double mi,mj;
-        if (rmass) {
-          mi=rmass[i];
-          mj=rmass[j];
-        } else {
-          itype = type[i];
-          jtype = type[j];
-          mi=mass[itype];
-          mj=mass[jtype];
-        }
-        if (fr)
-        {
-           if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];  
-           if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];  
-        }
-        meff=mi*mj/(mi+mj);
-        if (mask[i] & freeze_group_bit) meff = mj;
-        if (mask[j] & freeze_group_bit) meff = mi;
 
         deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
 
@@ -526,7 +531,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // Energy terms
         myEpotN = epK*fn_pot*fn_pot/kn;
-    	myEdisN = 0.5*damp*vnnr*dt;
+    	myEdisN = damp*vnnr*dt;
     	myEpotT = 0.0;
 
     	CDEnij +=  myEdisN;
@@ -536,7 +541,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
     	CPEn[i] += myEpotN;
     	CPEt[i] += myEpotT;
-    	CDEn[i]+=  CDEnij;
+    	CDEn[i]+=  meff_i*CDEnij;
     	CDEVt[i]+= CDEVtij;
     	CDEFt[i]+= CDEFtij;
     	CTFW[i]+=  CTFWij;
@@ -565,7 +570,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         if (j < nlocal) {
         	CPEn[j] += myEpotN;
         	CPEt[j] += myEpotT;
-        	CDEn[j]+=  CDEnij;
+        	CDEn[j]+=  meff_j*CDEnij;
         	CDEVt[j]+= CDEVtij;
         	CDEFt[j]+= CDEFtij;
         	CTFW[j]+=  CTFWij;

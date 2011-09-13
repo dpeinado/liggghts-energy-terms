@@ -184,9 +184,18 @@ double FixPropertyGlobal::compute_vector_modified(int i)
 
 double FixPropertyGlobal::compute_array(int i, int j) //i is row, j is column
 {
-    if (i>(size_array_rows-1))error->all("Trying to access matrix in fix property/global, but row index out of bounds");
-    if (j>(size_array_cols-1))error->all("Trying to access matrix in fix property/global, but column index out of bounds");
-
+    if (i>(size_array_rows-1)){
+    	char mensaje[150];
+    	sprintf(mensaje, "Trying to access matrix in fix property/global, but row index out of bounds i = %u; size = %u: Variable:  ",i, size_array_rows);
+    	strcat(mensaje, variablename);
+    	error->all(mensaje);
+    }
+    if (j>(size_array_cols-1)){
+    	char mensaje[150];
+    	sprintf(mensaje, "Trying to access matrix in fix property/global, but column index out of bounds j = %u; size = %u: Variable:  ",j, size_array_cols);
+    	strcat(mensaje, variablename);
+    	error->all(mensaje);
+    }
     int ind;
     ind = (i*size_array_cols)+j;
 

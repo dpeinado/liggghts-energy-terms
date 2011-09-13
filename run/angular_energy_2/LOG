@@ -1,0 +1,2383 @@
+pair_style gran/hooke/history/energy 1 0
+0
+0, 50.5, 50
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.5 	50 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.0 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    360.42014            0    20.168962            0    19.420247 2.2966656e-31            0 4.2446026e-34     380.5891    400.00935            0 
+    2000        2     360.8249            0    18.274369            0    20.910167 2.4665465e-31            0 4.5585696e-34    379.09927    400.00943            0 
+    3000        2    368.79817            0    1.2295472            0    29.983377 3.4344479e-31            0 6.3474049e-34    370.02772    400.01109            0 
+    4000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+    5000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+    6000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+    7000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+    8000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+    9000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+   10000        2    366.66852            0            0            0            0            0            0            0    366.66852    400.00602    33.337505 
+Loop time of 0.0300519 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00465107 (15.4768)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000484943 (1.61368)
+Outpt time (%) = 0.0189471 (63.0479)
+Other time (%) = 0.00596881 (19.8616)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_0_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_0_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_0_2.dat
+~0.08726646259971647885
+~0.08726646259971647885, ~50.49429204713761829844, 50.13073361412148726034
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~50.49429204713761829844 	50.13073361412148726034 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.5 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.028748 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00260234 (9.05223)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000495672 (1.7242)
+Outpt time (%) = 0.0196705 (68.4238)
+Other time (%) = 0.00597954 (20.7998)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_5_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_5_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_5_2.dat
+~0.17453292519943295769
+~0.17453292519943295769, ~50.47721162951831208906, ~50.26047226650039552328
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~50.47721162951831208906 	~50.26047226650039552328 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.10 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0309649 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00272799 (8.80994)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000637293 (2.05812)
+Outpt time (%) = 0.0213068 (68.8095)
+Other time (%) = 0.00629282 (20.3225)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_10_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_10_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_10_2.dat
+0.26179938779914943654
+0.26179938779914943654, ~50.44888873943360243012, ~49.61177143234621885648
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~50.44888873943360243012 	~49.61177143234621885648 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.15 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0327821 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00282907 (8.62994)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000599861 (1.82984)
+Outpt time (%) = 0.0229182 (69.9108)
+Other time (%) = 0.00643492 (19.6294)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_15_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_15_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_15_2.dat
+~0.34906585039886591539
+~0.34906585039886591539, ~50.40953893117886257608, ~50.51303021498850309958
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~50.40953893117886257608 	~50.51303021498850309958 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.20 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.034174 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00279927 (8.19124)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000549793 (1.60881)
+Outpt time (%) = 0.024379 (71.338)
+Other time (%) = 0.00644588 (18.862)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_20_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_20_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_20_2.dat
+~0.43633231299858239423
+~0.43633231299858239423, 50.35946168055497494486, ~50.63392739261104915428
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.35946168055497494486 	~50.63392739261104915428 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.25 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0319078 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00272465 (8.53913)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.00069356 (2.17364)
+Outpt time (%) = 0.0220926 (69.2388)
+Other time (%) = 0.00639701 (20.0484)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_25_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_25_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_25_2.dat
+0.52359877559829887308
+0.52359877559829887308, 50.29903810567665797014, 49.25
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.29903810567665797014 	49.25 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.30 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    364.06254     3.189109     15.12419            0    14.563175    2.0909552  0.060323766   0.92082521    382.37584    400.01112            0 
+    2000        2    364.08769     3.564653    13.700604            0    15.680606    2.9059496  0.060323766  0.012178786    381.35294      400.012            0 
+    3000        2    371.06961    2.3559435   0.92063208            0    22.485946    3.0717744   0.10607076 0.0032631436    374.34618    400.01324            0 
+    4000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+    5000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+    6000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+    7000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+    8000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+    9000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+   10000        2    369.52112    2.3047755            0            0            0            0            0            0     371.8259    400.00943    28.183531 
+Loop time of 0.0306671 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00465012 (15.1632)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000467539 (1.52456)
+Outpt time (%) = 0.0197258 (64.3224)
+Other time (%) = 0.00582361 (18.9898)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_30_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_30_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_30_2.dat
+~0.61086523819801535193
+~0.61086523819801535193, 50.22872806643348768452, ~50.86036465452656914416
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.22872806643348768452 	~50.86036465452656914416 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.35 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.025481 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00237846 (9.33427)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.0004704 (1.84608)
+Outpt time (%) = 0.0168955 (66.3064)
+Other time (%) = 0.00573659 (22.5132)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_35_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_35_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_35_2.dat
+~0.69813170079773183077
+~0.69813170079773183077, 50.1490666646784670528, 50.96418141452980898948
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.1490666646784670528 	50.96418141452980898948 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953  0.014453933 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.40 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0 2.049205e-24            0  0.021736154 0.0054140082 0.0036953854 1.0005947e-05    399.99906    400.02992            0 
+    1000        2    366.89744    4.7068486    11.826801            0     11.41017     2.617637   0.98922887    1.5787103    383.43109    400.02684            0 
+    2000        2    366.09649    6.0586418    10.711417            0    12.284098     3.839967   0.98922887  0.048391639    382.86655    400.02824            0 
+    3000        2    372.32931    4.1233469    0.7189395            0    17.606761    4.1888429    1.0574213 0.0045777657     377.1716     400.0292            0 
+    4000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+    5000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+    6000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+    7000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+    8000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+    9000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+   10000        2    371.28167     3.915148            0            0            0            0            0            0    375.19682    400.02622    24.829396 
+Loop time of 0.030278 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00464487 (15.3408)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000489473 (1.6166)
+Outpt time (%) = 0.0192819 (63.6828)
+Other time (%) = 0.00586176 (19.3598)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_40_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_40_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_40_2.dat
+0.78539816339744830962
+0.78539816339744830962, 50.0606601717798212866, 48.9393398282201787134
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	50.0606601717798212866 	48.9393398282201787134 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.45 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    368.84397    5.0379653    10.079977            0    9.7065721    2.5855825    1.8844357    1.8726298    383.96192    400.01114            0 
+    2000        2    367.12684    7.4442316    9.1279378            0    10.451492    3.8724329    1.8844357   0.10534266    383.69901    400.01272            0 
+    3000        2    372.82973    5.2570265   0.61215825            0    14.988567    4.3628379    1.9584921  0.004760994    378.69891    400.01357            0 
+    4000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+    5000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+    6000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+    7000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+    8000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+    9000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+   10000        2    372.12314    4.8722934            0            0            0            0            0            0    376.99543    400.01101    23.015578 
+Loop time of 0.0302041 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00470948 (15.5922)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000468969 (1.55267)
+Outpt time (%) = 0.0193129 (63.9413)
+Other time (%) = 0.00571275 (18.9138)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_45_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_45_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_45_2.dat
+~0.87266462599716478847
+~0.87266462599716478847, 49.96418141452980898948, ~51.14906666467846705282
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	49.96418141452980898948 	~51.14906666467846705282 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 1.19209e-06 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 1.19209e-06 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.50 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0252922 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00239587 (9.47277)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000476122 (1.88249)
+Outpt time (%) = 0.0167148 (66.0869)
+Other time (%) = 0.00570536 (22.5578)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_50_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_50_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_50_2.dat
+~0.95993108859688126731
+~0.95993108859688126731, ~49.86036465452656914416, ~51.22872806643348768454
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~49.86036465452656914416 	~51.22872806643348768454 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 0 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 0 (0)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.55 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0343421 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00290918 (8.4712)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000668287 (1.94597)
+Outpt time (%) = 0.0238209 (69.3636)
+Other time (%) = 0.0069437 (20.2192)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_55_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_55_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_55_2.dat
+1.04719755119659774616
+1.04719755119659774616, ~49.74999999999999999998, ~48.70096189432334202984
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~49.74999999999999999998 	~48.70096189432334202984 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.60 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.02967 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00268054 (9.03451)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000528574 (1.78151)
+Outpt time (%) = 0.020304 (68.4326)
+Other time (%) = 0.00615692 (20.7513)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_60_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_60_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_60_2.dat
+~1.13446401379631422501
+~1.13446401379631422501, 49.63392739261104915427, ~51.35946168055497494488
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	49.63392739261104915427 	~51.35946168055497494488 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.65 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.025331 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00242329 (9.56648)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000501871 (1.98125)
+Outpt time (%) = 0.0164838 (65.0735)
+Other time (%) = 0.00592208 (23.3788)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_65_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_65_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_65_2.dat
+~1.22173047639603070385
+~1.22173047639603070385, 49.51303021498850309956, 51.40953893117886257609
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	49.51303021498850309956 	51.40953893117886257609 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.70 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    386.40615    1.4523355    2.3549383            0    2.2683428   0.70315693    6.2000002   0.62066586    390.21342    400.00559            0 
+    2000        2    378.59522    5.8530441    2.1273018            0    2.4427379   0.73800195    9.8671891   0.38146801    386.57557    400.00496            0 
+    3000        2    377.32989    7.8078294   0.14072803            0      3.50504   0.73856779    10.481561 0.0013508908    385.27845    400.00497            0 
+    4000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+    5000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+    6000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+    7000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+    8000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+    9000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+   10000        2    376.97003    7.9188146            0            0            0            0            0            0    384.88884    400.00437    15.115528 
+Loop time of 0.03704 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00624228 (16.8528)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000544548 (1.47016)
+Outpt time (%) = 0.023658 (63.8716)
+Other time (%) = 0.00659513 (17.8054)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1 ave 1 max 1 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1
+Ave neighs/atom = 0.5
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_70_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_70_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_70_2.dat
+1.3089969389957471827
+1.3089969389957471827, 49.38822856765378114351, ~48.55111126056639756988
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	49.38822856765378114351 	~48.55111126056639756988 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.75 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0318549 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00265694 (8.34076)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000574827 (1.80452)
+Outpt time (%) = 0.02212 (69.4399)
+Other time (%) = 0.00650311 (20.4148)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_75_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_75_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_75_2.dat
+~1.39626340159546366155
+~1.39626340159546366155, 49.26047226650039552326, ~51.47721162951831208906
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	49.26047226650039552326 	~51.47721162951831208906 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.80 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0314331 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00285506 (9.08298)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000552893 (1.75895)
+Outpt time (%) = 0.0216796 (68.9707)
+Other time (%) = 0.00634551 (20.1873)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_80_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_80_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_80_2.dat
+~1.48352986419518014039
+~1.48352986419518014039, ~49.13073361412148726032, 51.49429204713761829845
+LIGGGHTS 1.2.8 based on lammps-10Mar10
+	dimension 3
+	atom_style granular
+	boundary f f f
+	newton off
+	region dominio block 0 100 0 100 0 100 units box
+	create_box 2 dominio
+Created orthogonal box = (0 0 0) to (100 100 100)
+  1 by 1 by 1 processor grid
+	create_atoms 1 single 49.0 50.0 50 units box
+Created 1 atoms
+	create_atoms 2 single 	~49.13073361412148726032 	51.49429204713761829845 50 units box
+Created 1 atoms
+	set atom 1 vx 	10
+Setting atom values ...
+  1 settings made for vx
+	set atom 1 vy 	0
+Setting atom values ...
+  1 settings made for vy
+	set atom 1 diameter 2
+Setting atom values ...
+  1 settings made for diameter
+	set atom 1 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	set atom 1 omegay   0
+Setting atom values ...
+  1 settings made for omegay
+	set	atom 2 vx 0
+Setting atom values ...
+  1 settings made for vx
+	set	atom 2 vy 0
+Setting atom values ...
+  1 settings made for vy
+	set atom 2 diameter 1
+Setting atom values ...
+  1 settings made for diameter
+	set atom 2 density  1.90985485103132161955691
+Setting atom values ...
+  1 settings made for density
+	neighbor		1 bin
+	neigh_modify	delay 0
+	fix 			m1 all property/global youngsModulus peratomtype 763.94194041252864782277e7 763.94194041252864782277e7
+	fix 			m2 all property/global poissonsRatio peratomtype 0.3 0.3
+	fix 			m3 all property/global coefficientRestitution peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 			m4 all property/global coefficientFriction peratomtypepair 2 0.5 0.5 0.5 0.5
+	fix 		 	m5 all property/global characteristicVelocity scalar 10
+	pair_style		gran/hooke/history/energy  1  0
+	pair_coeff		* *
+	communicate		single vel yes
+	fix    			1 all nve/sphere
+	timestep		0.0000001
+	run 0
+Setting up run ...
+Memory usage per processor = 18.8728 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0    266.66604            0            0    199.99953 0.00026666604 
+Loop time of 9.53674e-07 on 1 procs for 0 steps with 2 atoms
+
+Pair  time (%) = 0 (0)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0 (0)
+Outpt time (%) = 0 (0)
+Other time (%) = 9.53674e-07 (100)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+	compute			rot_e all erotate/sphere
+	compute		    	epotN all reduce sum f_CPEn
+	compute			edisN all reduce sum f_CDEn
+	compute			epotT all reduce sum f_CPEt
+	compute			edisTV all reduce sum f_CDEVt
+	compute			edisTF all reduce sum f_CDEFt
+	compute			workT all reduce sum f_CTFW
+	compute			edisH all reduce sum f_DEH
+	variable		eCon equal "ke + c_rot_e + c_epotN"
+	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
+	variable		eKin equal "ke"
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo			1000
+	thermo_modify		lost ignore norm no
+	compute_modify		thermo_temp dynamic yes
+	dump			mydmp all custom 10 files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.85 id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	run			10000
+Setting up run ...
+Memory usage per processor = 18.9877 Mbytes
+Step Atoms KinEng rot_e epotN epotT edisN edisTV edisTF workT eCon eTot edisH 
+       0        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    1000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    2000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    3000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    4000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    5000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    6000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    7000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    8000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+    9000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+   10000        2    399.99906            0            0            0            0            0            0            0    399.99906    399.99906            0 
+Loop time of 0.0335169 on 1 procs for 10000 steps with 2 atoms
+
+Pair  time (%) = 0.00300026 (8.95149)
+Neigh time (%) = 0 (0)
+Comm  time (%) = 0.000494242 (1.47461)
+Outpt time (%) = 0.0233932 (69.7951)
+Other time (%) = 0.00662923 (19.7788)
+
+Nlocal:    2 ave 2 max 2 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 0
+Ave neighs/atom = 0
+Neighbor list builds = 0
+Dangerous builds = 0
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_85_0.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_85_1.dat
+files/SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3_85_2.dat
+/home/lagar/liggghts-energy-terms/pyPost/pyCB.py
+files/dump-SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.*
+files/plot_SubStep_hooke_history_energy-0_En0_5_COF0_5_PO0_3.dat
+0.5
+0.0 0.0 -0 0.500063 1
+0.0053346594354 0.00533357179305 0.0 1.0 0.999796
+2.04071011685 2.0405061841 0.0 1.0001 0.9999
+2.04071011685 2.0405061841 0.0 1.0001 0.9999
+2.04077798835 2.04070458932 0.0 1.00004 0.999964
+73.8276869563 73.8280835049 -0 0.992651 1.00001
+1.53894065495 -0.0177353852025 -1.11125156683 0.500687 0.710562
+81.7192099642 81.719605668 -0 0.991867 1.0
+2.23561353156 -0.0561016362346 -1.6361222489 0.501314 0.706747
+2.66353477477 -0.104726421084 -1.97644145028 0.501764 0.702714
+104.253351648 104.253747554 -0 0.989634 1.0
+2.04071011685 2.0405061841 0.0 1.0001 0.9999
+2.04071011685 2.0405061841 0.0 1.0001 0.9999
+159.007456261 159.007860218 -0 0.98423 1.0
+7.2958642789 0.0316329482567 -5.18737656375 0.506366 0.71533
+260.960340775 260.960737301 -0 0.974246 1.0
+391.385086319 391.385507577 -0 0.96162 1.0
+0.0609918663135 0.0609794396106 0.0 1.0 0.999796
+
+
