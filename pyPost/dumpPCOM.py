@@ -469,6 +469,7 @@ class dumpPCOM:
       
         snap = self.read_snapshot(f)
         n=snap.natoms
+        id= self.names["id"]
         x = self.names["x"]
         y = self.names["y"]
         z = self.names["z"]
@@ -511,6 +512,7 @@ class dumpPCOM:
             time = snap.time                  
             atoms=snap.atoms
             atom=atoms[0]
+            myID=int(atom[type]-1)
             kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
             kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
             kET = kE
@@ -527,9 +529,10 @@ class dumpPCOM:
             EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
             EnConsT = EnCons
             EnTotT = EnTot
-            print >>fs[0], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            print >>fs[myID], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
             for i in xrange(1, n):
                 atom=atoms[i]
+                myID=int(atom[type]-1)
                 kE = 0.5*atom[mass]*(atom[vx]*atom[vx]+atom[vy]*atom[vy]+atom[vz]*atom[vz])
                 kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
                 kET += kE
@@ -546,7 +549,7 @@ class dumpPCOM:
                 EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
                 EnConsT += EnCons
                 EnTotT += EnTot
-                print >>fs[i], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+                print >>fs[myID], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
             print >>fs[n],  time, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
             snap = self.read_snapshot(f)
         for i in xrange(n+1):

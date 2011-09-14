@@ -184,7 +184,7 @@ inline void PairGranHookeHistoryEnergy::deriveContactModelParams(int &ip, int &j
     // convert Kn and Kt from pressure units to force/distance^2
     kn /= force->nktv2p;
     kt /= force->nktv2p;
-    epK = 0.25; // This is 1/2 because 2 particles, and 1/2 because integration from x
+    epK = 0.5; // This is 1/2 because 2 particles, and 1/2 because integration from x
     return;
 #define LMP_GRAN_DEFS_UNDEFINE
 #include "pair_gran_defs.h"
@@ -214,7 +214,7 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
   int *touch,**firsttouch;
   double *shear,*allshear,**firstshear;
 
-  int print_flag=0;
+
 
   if (eflag || vflag) ev_setup(eflag,vflag);
   else evflag = vflag_fdotr = 0;
@@ -299,38 +299,42 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
       radsum = radi + radj;
 
       double mi,mj;
-      if (rmass) {
-        mi=rmass[i];
-        mj=rmass[j];
-      } else {
-        itype = type[i];
-        jtype = type[j];
-        mi=mass[itype];
-        mj=mass[jtype];
-      }
-      if (fr)
-      {
-         if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
-         if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
-      }
-      meff=mi*mj/(mi+mj);
-      meff_i=meff/mi;
-      meff_j=meff/mj;
-      if (mask[i] & freeze_group_bit) meff = mj;
-      if (mask[j] & freeze_group_bit) meff = mi;
 
       //printf("meff = %f\t meff_i = %f\t meff_j = %f\n", meff, meff_i, meff_j);
 
       if (rsq >= radsum*radsum) {
         	if (touch[jj]){
         		touch[jj] = 0;
+        		//***************************************************************
+        		// Needed for introducing CDEnij to DEH[i] and DEH[j]
+        	    if (rmass) {
+        	      mi=rmass[i];
+        	      mj=rmass[j];
+        	    } else {
+        	      itype = type[i];
+        	      jtype = type[j];
+        	      mi=mass[itype];
+        	      mj=mass[jtype];
+        	    }
+        	    if (fr)
+        	    {
+        	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+        	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+        	    }
+        	    meff=mi*mj/(mi+mj);
+        	    meff_i=meff/mi;
+        	    meff_j=meff/mj;
+        	    if (mask[i] & freeze_group_bit) meff = mj;
+        	    if (mask[j] & freeze_group_bit) meff = mi;
+        	    //***************************************************************
+
         		shear = &allshear[dnum*jj];
         		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
         		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
-        		DEH[i]+=(CDEnij*meff_i+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
-        		DEH[j]+=(CDEnij*meff_j+CDEVtij+CDEFtij+CTFWij);
+        		DEH[i]+=meff_i*(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        		DEH[j]+=meff_j*(CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
         	}
@@ -338,15 +342,13 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         r = sqrt(rsq);
         rinv = 1.0/r;
         rsqinv = 1.0/rsq;
-        touch[jj] = 1;
+        if(!touch[jj]) touch[jj] = 1;
         // relative translational velocity
 
         vr1 = v[i][0] - v[j][0];
         vr2 = v[i][1] - v[j][1];
         vr3 = v[i][2] - v[j][2];
-
         // normal component
-
         vnnr = vr1*delx + vr2*dely + vr3*delz;
         vn1 = delx*vnnr * rsqinv;
         vn2 = dely*vnnr * rsqinv;
@@ -360,9 +362,30 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // relative rotational velocity
 
+
+	    if (rmass) {
+	      mi=rmass[i];
+	      mj=rmass[j];
+	    } else {
+	      itype = type[i];
+	      jtype = type[j];
+	      mi=mass[itype];
+	      mj=mass[jtype];
+	    }
+	    if (fr)
+	    {
+	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+	    }
+	    meff=mi*mj/(mi+mj);
+	    meff_i=meff/mi;
+	    meff_j=meff/mj;
+	    if (mask[i] & freeze_group_bit) meff = mj;
+	    if (mask[j] & freeze_group_bit) meff = mi;
+
         double deltan=radsum-r;
-        cri = radi-0.5*deltan;
-        crj = radj-0.5*deltan;
+        cri = radi;//-0.5*deltan;
+        crj = radj;//-0.5*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;
@@ -377,25 +400,25 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         double fn_pot = kn*(radsum-r);
         //******************************************************************************************************************
         if(ccel<0) {
-        	print_flag=1;
-        	fn_pot = 0.0;
-        	ccel   = 0.0;
-        	damp   = 0.0;
-        	deltan = 0.0;
-        	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
-/*        	if (touch[jj]){
-        		touch[jj] = 0;
+        	if (touch[jj]==1){
+        		touch[jj] = 2;
+        		myEpotN = epK*fn_pot*fn_pot/kn;
         		shear = &allshear[dnum*jj];
         		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
         		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
         		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
-        		DEH[i]+=(CDEnij*meff_i+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
-        		DEH[j]+=(CDEnij*meff_j+CDEVtij+CDEFtij+CTFWij);
+        		DEH[i]+=meff_i*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
-        	}*/
-        	//return;
+            	fn_pot = 0.0;
+            	ccel   = 0.0;
+            	damp   = 0.0;
+            	deltan = 0.0;
+            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+        	}
+        	break;
         }
 
         //******************************************************************************************************************
@@ -495,9 +518,9 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
             		fe1x = fe0x+lambda*dfex;
             		fe1y = fe0y+lambda*dfey;
             		fe1z = fe0z+lambda*dfez;
-            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz)*0.5;
-            		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz)*0.5;
-            		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz)*0.5;
+            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz);
+            		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz);
+            		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz);
         		}
         	}else{
         		double beta = fn/fe0;
@@ -509,8 +532,8 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
             		fs2 = beta*fe0y;
             		fs3 = beta*fe0z;
             		myEdisTV = 0.0;
-            		myWorkT  = -beta*(1-beta)*kt*delta02*0.5;
-            		myEdisTF = ( (1-beta)*delta02 + (delta0x*dTx+delta0y*dTy+delta0z*dTz) )*kt*0.5*beta;
+            		myWorkT  = -beta*(1-beta)*kt*delta02;
+            		myEdisTF = ( (1-beta)*delta02 + (delta0x*dTx+delta0y*dTy+delta0z*dTz) )*kt*beta;
         		}
         	}
         } else {
@@ -518,8 +541,8 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         		shear[0] += dTx;
         		shear[1] += dTy;
         		shear[2] += dTz;
-            	myWorkT = -(fe1x*dTx + fe1y*dTy + fe1z*dTz)*0.5;
-                myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat*0.5;
+            	myWorkT = -(fe1x*dTx + fe1y*dTy + fe1z*dTz);
+                myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
                 myEdisTF=0.0;
         	}
 
@@ -527,17 +550,10 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // forces & torques
 
-        if(print_flag){
-        	printf("fs1 = %f fs2 = %f fs3 = %f",fs1,fs2,fs3);
-        }
+
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
         fz = delz*ccel + fs3;
-
-        if(print_flag){
-        	printf("fs1 = %f fs2 = %f fs3 = %f\n",fs1,fs2,fs3);
-        	printf("fx = %f fy = %f fz = %f\n",fx,fy,fz);
-        }
 
         tor1 = rinv * (dely*fs3 - delz*fs2);
         tor2 = rinv * (delz*fs1 - delx*fs3);
@@ -553,12 +569,11 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
     	CDEFtij += myEdisTF;
     	CTFWij +=  myWorkT;
 
-    	CPEn[i] += myEpotN;
-    	CPEt[i] += myEpotT;
+    	CPEn[i] += meff_i*myEpotN;
     	CDEn[i]+=  meff_i*CDEnij;
-    	CDEVt[i]+= CDEVtij;
-    	CDEFt[i]+= CDEFtij;
-    	CTFW[i]+=  CTFWij;
+    	CDEVt[i]+= meff_i*CDEVtij;
+    	CDEFt[i]+= meff_i*CDEFtij;
+    	CTFW[i]+=  meff_i*CTFWij;
 
         if(rollingflag)
         {
@@ -582,12 +597,11 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         }
 
         if (j < nlocal) {
-        	CPEn[j] += myEpotN;
-        	CPEt[j] += myEpotT;
+        	CPEn[j] += meff_j*myEpotN;
         	CDEn[j]+=  meff_j*CDEnij;
-        	CDEVt[j]+= CDEVtij;
-        	CDEFt[j]+= CDEFtij;
-        	CTFW[j]+=  CTFWij;
+        	CDEVt[j]+= meff_j*CDEVtij;
+        	CDEFt[j]+= meff_j*CDEFtij;
+        	CTFW[j]+=  meff_j*CTFWij;
         	if(addflag){
         		f[j][0] -= fx;
         		f[j][1] -= fy;

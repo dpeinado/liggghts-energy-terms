@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.6.dtd">
 <!-- eric4 project file for project pyPost -->
-<!-- Saved: 2011-08-30, 09:42:32 -->
+<!-- Saved: 2011-09-14, 13:06:35 -->
 <!-- Copyright (C) 2011 ,  -->
 <Project version="4.6">
   <Language>en</Language>
@@ -35,7 +35,7 @@
   </Interfaces>
   <Others>
   </Others>
-  <MainScript>postpro1.py</MainScript>
+  <MainScript>pyGRAPH.py</MainScript>
   <Vcs>
     <VcsType>None</VcsType>
     <VcsOptions>
