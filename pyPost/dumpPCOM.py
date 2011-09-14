@@ -140,11 +140,6 @@ class dumpPCOM:
       except:
          cden_flag=0          
       try:
-        cpet=self.names["f_CPEt"]
-        cpet_flag=1
-      except:
-         cpet_flag=0             
-      try:
         cdetv=self.names["f_CDEVt"]
         cdetv_flag=1
       except:
@@ -240,11 +235,6 @@ class dumpPCOM:
               print >>fs,"LOOKUP_TABLE default"
               for atom in atoms:  #loop all atoms
                 print >>fs,atom[cden]  
-          if cpet_flag:
-              print >>fs,"SCALARS CPEt float 1"
-              print >>fs,"LOOKUP_TABLE default"
-              for atom in atoms:  #loop all atoms
-                print >>fs,atom[cpet]  
           if cdetv_flag:
               print >>fs,"SCALARS CDEVt float 1"
               print >>fs,"LOOKUP_TABLE default"
@@ -485,8 +475,7 @@ class dumpPCOM:
         r = self.names["radius"]
         type = self.names["type"]
         cpen=self.names["f_CPEn"]
-        cden=self.names["f_CDEn"]
-        cpet=self.names["f_CPEt"]
+        cden=self.names["f_CDEn"]    
         cdevt=self.names["f_CDEVt"]
         cdeft=self.names["f_CDEFt"]
         ctfw=self.names["f_CTFW"]
@@ -517,8 +506,7 @@ class dumpPCOM:
             kR = 0.5*2.0/5.0*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
             kET = kE
             kRT = kR
-            cpenT = atom[cpen]
-            cpetT = atom[cpet]
+            cpenT = atom[cpen]            
             cdenT = atom[cden]
             cdetTV = atom[cdevt]
             cdetTF = atom[cdeft]
@@ -529,7 +517,7 @@ class dumpPCOM:
             EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
             EnConsT = EnCons
             EnTotT = EnTot
-            print >>fs[myID], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            print >>fs[myID], time, kE,  kR,  atom[cpen], atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
             for i in xrange(1, n):
                 atom=atoms[i]
                 myID=int(atom[type]-1)
@@ -538,7 +526,6 @@ class dumpPCOM:
                 kET += kE
                 kRT += kR
                 cpenT += atom[cpen]
-                cpetT += atom[cpet]
                 cdenT += atom[cden]
                 cdetTV += atom[cdevt]
                 cdetTF += atom[cdeft]
@@ -549,8 +536,8 @@ class dumpPCOM:
                 EnTot = EnCons+atom[ctfw]+atom[deh]+atom[cden]+atom[cdevt]+atom[cdeft]
                 EnConsT += EnCons
                 EnTotT += EnTot
-                print >>fs[myID], time, kE,  kR,  atom[cpen], atom[cpet],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
-            print >>fs[n],  time, kET, kRT, cpenT, cpetT, cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
+                print >>fs[myID], time, kE,  kR,  atom[cpen],  atom[cden], atom[cdevt], atom[cdeft], atom[ctfw], atom[deh], EnCons, EnTot
+            print >>fs[n],  time, kET, kRT, cpenT,cdenT, cdetTV, cdetTF, ctfwT, dehT, EnConsT, (EnTotT-IKE)
             snap = self.read_snapshot(f)
         for i in xrange(n+1):
             fs[i].close()
@@ -585,7 +572,6 @@ class dumpPCOM:
         type = self.names["type"]
         cpen=self.names["f_CPEn"]
         cden=self.names["f_CDEn"]
-        cpet=self.names["f_CPEt"]
         cdevt=self.names["f_CDEVt"]
         cdeft=self.names["f_CDEFt"]
         ctfw=self.names["f_CTFW"]
@@ -616,7 +602,7 @@ class dumpPCOM:
         if energyFlag:
             line=  fen.readline()
             line=  fen.readline()        
-        print >>fs, '# time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE', 'LHS',  'ErrorA',  'ErrorR',   'kE', 'kR',  'eKIN',  'cpeN',  'cpeT',  'cdeN',  'cdeTV',  'cdeTF',  'ctfW'
+        print >>fs, '# time', 'eKIN',  'eCOL',  'ePG',  'DEH',  'IKE', 'LHS',  'ErrorA',  'ErrorR',   'kE', 'kR',  'eKIN',  'cpeN', 'cdeN',  'cdeTV',  'cdeTF',  'ctfW'
         n=0
         while snap:
             if energyFlag:
@@ -634,12 +620,11 @@ class dumpPCOM:
             else: kR = 0.2*atom[mass]*atom[r]*atom[r]*(atom[omegax]*atom[omegax]+atom[omegay]*atom[omegay]+atom[omegaz]*atom[omegaz])
             eKIN = kE+kR
             cpeN = atom[cpen]
-            cpeT = atom[cpet]
             cdeN = atom[cden]
             cdeTV = atom[cdevt]
             cdeTF = atom[cdeft]
             ctfW = atom[ctfw]
-            eCOL= cpeN+cpeT+cdeN+cdeTV+cdeTF+ctfW
+            eCOL= cpeN+cdeN+cdeTV+cdeTF+ctfW
             DEH = atom[deh]
             if(epg_flag):
                 ePG = atom[epg]
@@ -653,7 +638,7 @@ class dumpPCOM:
             if fabs(Denom)>0.0:
                 ErrorR = ErrorA/Denom*100.0
             else: ErrorR =0
-            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  LHS,  ErrorA,  ErrorR, kE,  kR,  eKIN,  cpeN,  cpeT,  cdeN,  cdeTV,  cdeTF,  ctfW
+            print >>fs, time, eKIN,  eCOL,  ePG,  DEH,  IKE,  LHS,  ErrorA,  ErrorR, kE,  kR,  eKIN,  cpeN, cdeN,  cdeTV,  cdeTF,  ctfW
             snap = self.read_snapshot(f)        
             n+=1
         fs.close()
@@ -796,8 +781,7 @@ class dumpPCOM:
         r = self.names["radius"]
         type = self.names["type"]
         cpen=self.names["f_CPEn"]
-        cden=self.names["f_CDEn"]
-        cpet=self.names["f_CPEt"]
+        cden=self.names["f_CDEn"]        
         cdevt=self.names["f_CDEVt"]
         cdeft=self.names["f_CDEFt"]
         ctfw=self.names["f_CTFW"]

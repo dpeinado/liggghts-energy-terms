@@ -76,7 +76,6 @@ do
 	compute			rot_e all erotate/sphere
 	compute		    	epotN all reduce sum f_CPEn
 	compute			edisN all reduce sum f_CDEn
-	compute			epotT all reduce sum f_CPEt
 	compute			edisTV all reduce sum f_CDEVt
 	compute			edisTF all reduce sum f_CDEFt
 	compute			workT all reduce sum f_CTFW
@@ -84,11 +83,11 @@ do
 	variable		eCon equal "ke + c_rot_e + c_epotN"
 	variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
 	variable		eKin equal "ke"
-	thermo_style		custom step atoms ke c_rot_e c_epotN c_epotT c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+	thermo_style		custom step atoms ke c_rot_e c_epotN c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
 	thermo			100000
 	thermo_modify		lost ignore norm no
 	compute_modify		thermo_temp dynamic yes
-	dump			mydmp all custom 1000 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CPEt f_CDEVt f_CDEFt f_CTFW f_DEH
+	dump			mydmp all custom 1000 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
 	run			1000000
 EOF
 python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${rootName}_${a}_
