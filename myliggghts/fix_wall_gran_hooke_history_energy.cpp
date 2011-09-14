@@ -84,7 +84,6 @@ void FixWallGranHookeHistoryEnergy::init_substyle()
   charVel = ((PairGranHookeHistoryEnergy*)pairgran)->charVel;
   CPEn = ((PairGranHookeHistoryEnergy*)pairgran)->CPEn;
   CDEn = ((PairGranHookeHistoryEnergy*)pairgran)->CDEn;
-  CPEt = ((PairGranHookeHistoryEnergy*)pairgran)->CPEt;
   CDEVt = ((PairGranHookeHistoryEnergy*)pairgran)->CDEVt;
   CDEFt = ((PairGranHookeHistoryEnergy*)pairgran)->CDEFt;
   CTFW = ((PairGranHookeHistoryEnergy*)pairgran)->CTFW;
@@ -131,7 +130,6 @@ void FixWallGranHookeHistoryEnergy::updatePtrs()
 {
 	  CPEn = ((PairGranHookeHistoryEnergy*)pairgran)->CPEn;
 	  CDEn = ((PairGranHookeHistoryEnergy*)pairgran)->CDEn;
-	  CPEt = ((PairGranHookeHistoryEnergy*)pairgran)->CPEt;
 	  CDEVt = ((PairGranHookeHistoryEnergy*)pairgran)->CDEVt;
 	  CDEFt = ((PairGranHookeHistoryEnergy*)pairgran)->CDEFt;
 	  CTFW = ((PairGranHookeHistoryEnergy*)pairgran)->CTFW;
@@ -346,9 +344,8 @@ void FixWallGranHookeHistoryEnergy::compute_force(int ip, double deltan, double 
   tor2 = rinv * (dz*fs1 - dx*fs3);
   tor3 = rinv * (dx*fs2 - dy*fs1);
   // Energy terms
-   myEpotN = epK*fn_pot*fn_pot/kn; // 0.4/2 = 2/5*1/2
+   myEpotN = epK*fn_pot*fn_pot/kn; // 0.4
    myEdisN = damp*vnnr*dt;
-   myEpotT = 0.0;//epK*(c_history[0]*c_history[0]+c_history[1]*c_history[1]+c_history[2]*c_history[2])*kt;
 
    IKE[0] += (fx*vwall[0]+fy*vwall[1]+fz*vwall[2])*dt;
 //   printf("dx = %f dy = %f dz = %f\n",dx,dy,dz);
@@ -359,7 +356,6 @@ void FixWallGranHookeHistoryEnergy::compute_force(int ip, double deltan, double 
    CDEFtij += myEdisTF;
    CTFWij +=  myWorkT;
    CPEn[ip] += myEpotN;
-   CPEt[ip] += myEpotT;
    CDEn[ip]+=  CDEnij;
    CDEVt[ip]+= CDEVtij;
    CDEFt[ip]+= CDEFtij;

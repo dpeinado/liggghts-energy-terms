@@ -60,7 +60,6 @@ void FixWallGranHertzHistoryEnergy::updatePtrs()
 {
 	  CPEn = ((PairGranHertzHistoryEnergy*)pairgran)->CPEn;
 	  CDEn = ((PairGranHertzHistoryEnergy*)pairgran)->CDEn;
-	  CPEt = ((PairGranHertzHistoryEnergy*)pairgran)->CPEt;
 	  CDEVt = ((PairGranHertzHistoryEnergy*)pairgran)->CDEVt;
 	  CDEFt = ((PairGranHertzHistoryEnergy*)pairgran)->CDEFt;
 	  CTFW = ((PairGranHertzHistoryEnergy*)pairgran)->CTFW;
@@ -81,7 +80,6 @@ void FixWallGranHertzHistoryEnergy::init_substyle()
   coeffRollFrict = ((PairGranHertzHistoryEnergy*)pairgran)->coeffRollFrict;
   CPEn = ((PairGranHertzHistoryEnergy*)pairgran)->CPEn;
   CDEn = ((PairGranHertzHistoryEnergy*)pairgran)->CDEn;
-  CPEt = ((PairGranHertzHistoryEnergy*)pairgran)->CPEt;
   CDEVt = ((PairGranHertzHistoryEnergy*)pairgran)->CDEVt;
   CDEFt = ((PairGranHertzHistoryEnergy*)pairgran)->CDEFt;
   CTFW = ((PairGranHertzHistoryEnergy*)pairgran)->CTFW;

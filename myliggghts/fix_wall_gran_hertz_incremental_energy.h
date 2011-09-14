@@ -56,7 +56,7 @@ class FixWallGranHertzIncrementalEnergy : public FixWallGran {
 
   int dampflag,cohesionflag,rollingflag,constflag;
   double **Yeff,**Geff,**betaeff,**veff,**cohEnergyDens,**coeffRestLog,**coeffFrict,**coeffRollFrict,**Kappa;
-  double *CPEn, *CDEn, *CPEt, *CDEVt, *CDEFt, *CTFW, *DEH;
+  double *CPEn, *CDEn, *CDEVt, *CDEFt, *CTFW, *DEH;
 };
 
 }

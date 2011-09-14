@@ -84,7 +84,6 @@ void FixWallGranHertzIncrementalEnergy::init_substyle()
   coeffRollFrict = ((PairGranHertzIncrementalEnergy*)pairgran)->coeffRollFrict;
   CPEn = ((PairGranHertzIncrementalEnergy*)pairgran)->CPEn;
   CDEn = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEn;
-  CPEt = ((PairGranHertzIncrementalEnergy*)pairgran)->CPEt;
   CDEVt = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEVt;
   CDEFt = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEFt;
   CTFW = ((PairGranHertzIncrementalEnergy*)pairgran)->CTFW;
@@ -128,7 +127,6 @@ void FixWallGranHertzIncrementalEnergy::updatePtrs()
 {
 	  CPEn = ((PairGranHertzIncrementalEnergy*)pairgran)->CPEn;
 	  CDEn = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEn;
-	  CPEt = ((PairGranHertzIncrementalEnergy*)pairgran)->CPEt;
 	  CDEVt = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEVt;
 	  CDEFt = ((PairGranHertzIncrementalEnergy*)pairgran)->CDEFt;
 	  CTFW = ((PairGranHertzIncrementalEnergy*)pairgran)->CTFW;
@@ -369,7 +367,6 @@ void FixWallGranHertzIncrementalEnergy::compute_force(int ip, double deltan, dou
    CDEFtij += myEdisTF;
    CTFWij +=  myWorkT;
    CPEn[ip] += myEpotN;
-   CPEt[ip] += myEpotT;
    CDEn[ip]+=  CDEnij;
    CDEVt[ip]+= CDEVtij;
    CDEFt[ip]+= CDEFtij;

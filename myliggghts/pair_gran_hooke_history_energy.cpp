@@ -64,6 +64,7 @@ PairGranHookeHistoryEnergy::PairGranHookeHistoryEnergy(LAMMPS *lmp) : PairGran(l
     dnum = 7;
     Yeff = NULL;
     Geff = NULL;
+    Kappa=NULL;
     betaeff = NULL;
     veff = NULL;
     cohEnergyDens = NULL;
@@ -72,14 +73,12 @@ PairGranHookeHistoryEnergy::PairGranHookeHistoryEnergy(LAMMPS *lmp) : PairGran(l
     coeffRollFrict = NULL;
     fppaCPEn = NULL;
     fppaCDEn = NULL;
-    fppaCPEt = NULL;
     fppaCDEVt = NULL;
     fppaCDEFt = NULL;
     fppaCTFW = NULL;
     fppaDEH = NULL;
     CPEn = NULL;
     CDEn = NULL;
-    CPEt = NULL;
     CDEVt = NULL;
     CDEFt = NULL;
     CTFW = NULL;
@@ -93,7 +92,6 @@ PairGranHookeHistoryEnergy::~PairGranHookeHistoryEnergy()
 	//unregister energy terms as property/peratom
 	  if (fppaCPEn!=NULL) modify->delete_fix("CPEn");
 	  if (fppaCDEn!=NULL) modify->delete_fix("CDEn");
-	  if (fppaCPEt!=NULL) modify->delete_fix("CPEt");
 	  if (fppaCDEVt!=NULL) modify->delete_fix("CDEVt");
 	  if (fppaCDEFt!=NULL) modify->delete_fix("CDEFt");
 	  if (fppaCTFW!=NULL) modify->delete_fix("CTFW");
@@ -104,7 +102,6 @@ void PairGranHookeHistoryEnergy::updatePtrs()
 
 	CPEn=fppaCPEn->vector_atom;
 	CDEn=fppaCDEn->vector_atom;
-	CPEt=fppaCPEt->vector_atom;
 	CDEVt=fppaCDEVt->vector_atom;
 	CDEFt=fppaCDEFt->vector_atom;
 	CTFW=fppaCTFW->vector_atom;
@@ -235,7 +232,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
   double epK;
   double myEpotN;
-  double myEpotT;
   double myWorkT;
   double myEdisN;
   double myEdisTV;
@@ -254,7 +250,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
   updatePtrs(); // update pointers to Energy values
   fppaCPEn->do_forward_comm();
   fppaCDEn->do_forward_comm();
-  fppaCPEt->do_forward_comm();
   fppaCDEVt->do_forward_comm();
   fppaCDEFt->do_forward_comm();
   fppaCTFW->do_forward_comm();
@@ -264,7 +259,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
    for (ii = 0; ii < inum; ii++) {
  	  i = ilist[ii];
  	  CPEn[i] = 0.0; // This is equivalent to make 0.0 in force_clear()
- 	  CPEt[i] = 0.0; // This is equivalent to make 0.0 in force_clear()
  	  CDEn[i] = 0.0; // As the contact is between i and j, and some contacts may have finished, it's needed to sum up the contacts each step
  	  CDEVt[i] = 0.0; // The dissipated energy history is not cleaned. It has to accumulate all the history from beginning to the end of simulation
  	  CDEFt[i] = 0.0;
@@ -285,7 +279,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
     jnum = numneigh[i];
     myEpotN = 0.;
     myEdisN = 0.;
-    myEpotT = 0.;
     myEdisTV = myEdisTF = 0.;
     myWorkT = 0.;
     for (jj = 0; jj < jnum; jj++) {
@@ -299,8 +292,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
       radsum = radi + radj;
 
       double mi,mj;
-
-      //printf("meff = %f\t meff_i = %f\t meff_j = %f\n", meff, meff_i, meff_j);
 
       if (rsq >= radsum*radsum) {
         	if (touch[jj]){
@@ -362,7 +353,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // relative rotational velocity
 
-
 	    if (rmass) {
 	      mi=rmass[i];
 	      mj=rmass[j];
@@ -420,7 +410,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         	}
         	break;
         }
-
         //******************************************************************************************************************
 
         if (cohesionflag) { 
@@ -550,7 +539,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
         // forces & torques
 
-
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
         fz = delz*ccel + fs3;
@@ -562,7 +550,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         // Energy terms
         myEpotN = epK*fn_pot*fn_pot/kn;
     	myEdisN = damp*vnnr*dt;
-    	myEpotT = 0.0;
 
     	CDEnij +=  myEdisN;
     	CDEVtij += myEdisTV;
@@ -719,20 +706,6 @@ void PairGranHookeHistoryEnergy::init_substyle()
     modify->add_fix(9,fixarg);
     fppaCDEn=static_cast<FixPropertyPerAtom*>(modify->fix[modify->find_fix_property("CDEn","property/peratom","scalar",0,0)]);
   }
-  if (fppaCPEt==NULL) {
-//register Temp as property/peratom
-  fixarg[0]=(char *) "CPEt";
-  fixarg[1]=(char *) "all";
-  fixarg[2]=(char *) "property/peratom";
-  fixarg[3]=(char *) "CPEt";
-  fixarg[4]=(char *) "scalar";
-  fixarg[5]=(char *) "yes";
-  fixarg[6]=(char *) "yes";
-  fixarg[7]=(char *) "no";
-  fixarg[8]=(char *) "0.0";
-  modify->add_fix(9,fixarg);
-  fppaCPEt=static_cast<FixPropertyPerAtom*>(modify->fix[modify->find_fix_property("CPEt","property/peratom","scalar",0,0)]);
-}
   if (fppaCDEVt==NULL) {
 //register Temp as property/peratom
   fixarg[0]=(char *) "CDEVt";

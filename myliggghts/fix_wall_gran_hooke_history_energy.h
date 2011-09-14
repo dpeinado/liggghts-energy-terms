@@ -53,7 +53,7 @@ class FixWallGranHookeHistoryEnergy : public FixWallGran {
   void reset_contact(int ip,double *c_history);
   int dampflag,cohesionflag,rollingflag,constflag;
   double **Yeff,**Geff,**betaeff,**veff,**cohEnergyDens,**coeffRestLog,**coeffFrict,charVel,**coeffRollFrict,**Kappa;
-  double *CPEn, *CDEn, *CPEt, *CDEVt, *CDEFt, *CTFW, *DEH;
+  double *CPEn, *CDEn, *CDEVt, *CDEFt, *CTFW, *DEH;
 
 };
 

@@ -71,12 +71,11 @@ class PairGranHertzIncrementalEnergy : public PairGran {
 
   class FixPropertyPerAtom* fppaCPEn;
   class FixPropertyPerAtom* fppaCDEn;
-  class FixPropertyPerAtom* fppaCPEt;
   class FixPropertyPerAtom* fppaCDEVt;
   class FixPropertyPerAtom* fppaCDEFt;
   class FixPropertyPerAtom* fppaCTFW;
   class FixPropertyPerAtom* fppaDEH;
-  double *CPEn, *CDEn, *CPEt, *CDEVt, *CDEFt, *CTFW, *DEH;
+  double *CPEn, *CDEn, *CDEVt, *CDEFt, *CTFW, *DEH;
 
   virtual void deriveContactModelParams(int &, int &,double &, double &, double &,double &, double &, double &, double &, double &, double &);
   virtual void addCohesionForce(int &, int &,double &,double &);

@@ -69,14 +69,12 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
     coeffRollFrict = NULL;
     fppaCPEn = NULL;
     fppaCDEn = NULL;
-    fppaCPEt = NULL;
     fppaCDEVt = NULL;
     fppaCDEFt = NULL;
     fppaCTFW = NULL;
     fppaDEH = NULL;
     CPEn = NULL;
     CDEn = NULL;
-    CPEt = NULL;
     CDEVt = NULL;
     CDEFt = NULL;
     CTFW = NULL;
@@ -90,7 +88,6 @@ PairGranHertzIncrementalEnergy::~PairGranHertzIncrementalEnergy()
 	//unregister energy terms as property/peratom
 	  if (fppaCPEn!=NULL) modify->delete_fix("CPEn");
 	  if (fppaCDEn!=NULL) modify->delete_fix("CDEn");
-	  if (fppaCPEt!=NULL) modify->delete_fix("CPEt");
 	  if (fppaCDEVt!=NULL) modify->delete_fix("CDEVt");
 	  if (fppaCDEFt!=NULL) modify->delete_fix("CDEFt");
 	  if (fppaCTFW!=NULL) modify->delete_fix("CTFW");
@@ -103,7 +100,6 @@ void PairGranHertzIncrementalEnergy::updatePtrs()
 
 	CPEn=fppaCPEn->vector_atom;
 	CDEn=fppaCDEn->vector_atom;
-	CPEt=fppaCPEt->vector_atom;
 	CDEVt=fppaCDEVt->vector_atom;
 	CDEFt=fppaCDEFt->vector_atom;
 	CTFW=fppaCTFW->vector_atom;
@@ -185,7 +181,7 @@ inline void PairGranHertzIncrementalEnergy::deriveContactModelParams(int &ip, in
     // convert Kn and Kt from pressure units to force/distance^2
     kn /= force->nktv2p;
     kt /= force->nktv2p;
-    epK = 0.20;
+    epK = 0.40;
     return;
 }
 
@@ -207,7 +203,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
   double vr1,vr2,vr3,vnnr,vn1,vn2,vn3,vt1,vt2,vt3,wrmag;
   double wr1,wr2,wr3;
   double vtr1,vtr2,vtr3,vrel;
-  double meff,damp,ccel,tor1,tor2,tor3;
+  double meff,damp,ccel,tor1,tor2,tor3, meff_i,meff_j;
   double fn,fs,fs1,fs2,fs3;
   double tfs1,tfs2,tfs3;
   double shrmag,rsht, cri, crj;
@@ -234,7 +230,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
   double epK;
   double myEpotN;
-  double myEpotT;
   double myWorkT;
   double myEdisN;
   double myEdisTV;
@@ -254,7 +249,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
   fppaCPEn->do_forward_comm();
   fppaCDEn->do_forward_comm();
-  fppaCPEt->do_forward_comm();
   fppaCDEVt->do_forward_comm();
   fppaCDEFt->do_forward_comm();
   fppaCTFW->do_forward_comm();
@@ -264,7 +258,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
   for (ii = 0; ii < inum; ii++) {
 	  i = ilist[ii];
 	  CPEn[i] = 0.0; // This is equivalent to make 0.0 in force_clear()
-	  CPEt[i] = 0.0; // This is equivalent to make 0.0 in force_clear()
 	  CDEn[i] = 0.0; // As the contact is between i and j, and some contacts may have finished, it's needed to sum up the contacts each step
 	  CDEVt[i] = 0.0; // The dissipated energy history is not cleaned. It has to accumulate all the history from beginning to the end of simulation
 	  CDEFt[i] = 0.0;
@@ -284,7 +277,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
     myEpotN = 0.;
     myEdisN = 0.;
-    myEpotT = 0.;
     myEdisTV = myEdisTF = 0.;
     myWorkT = 0.;
 
@@ -297,17 +289,43 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
       rsq = delx*delx + dely*dely + delz*delz;
       radj = radius[j];
       radsum = radi + radj;
+
+      double mi,mj;
+
       if (rsq >= radsum*radsum) {
 	// unset non-touching neighbors
     	if (touch[jj]){
     		touch[jj] = 0;
+    		//***************************************************************
+    		// Needed for introducing CDEnij to DEH[i] and DEH[j]
+    	    if (rmass) {
+    	      mi=rmass[i];
+    	      mj=rmass[j];
+    	    } else {
+    	      itype = type[i];
+    	      jtype = type[j];
+    	      mi=mass[itype];
+    	      mj=mass[jtype];
+    	    }
+    	    if (fr)
+    	    {
+    	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+    	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+    	    }
+    	    meff=mi*mj/(mi+mj);
+    	    meff_i=meff/mi;
+    	    meff_j=meff/mj;
+    	    if (mask[i] & freeze_group_bit) meff = mj;
+    	    if (mask[j] & freeze_group_bit) meff = mi;
+    	    //***************************************************************
+
     		shear = &allshear[dnum*jj];
     		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
     		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
     		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
     		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
-        	DEH[i]+=(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
-        	DEH[j]+=(CDEnij+CDEVtij+CDEFtij+CTFWij);
+        	DEH[i]+=meff_i*(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        	DEH[j]+=meff_j*(CDEnij+CDEVtij+CDEFtij+CTFWij);
     		for(int d=0; d<dnum; d++)
     			shear[d] = 0.0;
     	}
@@ -315,7 +333,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         r = sqrt(rsq);
         rinv = 1.0/r;
         rsqinv = 1.0/rsq;
-    	touch[jj] = 1;
+        if(!touch[jj]) touch[jj] = 1;
 
         // relative translational velocity
 
@@ -338,38 +356,63 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
         // relative rotational velocity
 
+	    if (rmass) {
+	      mi=rmass[i];
+	      mj=rmass[j];
+	    } else {
+	      itype = type[i];
+	      jtype = type[j];
+	      mi=mass[itype];
+	      mj=mass[jtype];
+	    }
+	    if (fr)
+	    {
+	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+	    }
+	    meff=mi*mj/(mi+mj);
+	    meff_i=meff/mi;
+	    meff_j=meff/mj;
+	    if (mask[i] & freeze_group_bit) meff = mj;
+	    if (mask[j] & freeze_group_bit) meff = mi;
+
         double deltan=radsum-r;
-        cri = radi-0.5*deltan;
-        crj = radj-0.5*deltan;
+        cri = radi;//-0.5*deltan;
+        crj = radj;//-0.5*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;
 
         // normal forces = Hookian contact + normal velocity damping
 
-        double mi,mj;
-        if (rmass) {
-          mi=rmass[i];
-          mj=rmass[j];
-        } else {
-          itype = type[i];
-          jtype = type[j];
-          mi=mass[itype];
-          mj=mass[jtype];
-        }
-        if (fr)
-        {
-           if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];  
-           if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];  
-        }
-        meff=mi*mj/(mi+mj);
-        if (mask[i] & freeze_group_bit) meff = mj;
-        if (mask[j] & freeze_group_bit) meff = mi;
-
         deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+
         damp = gamman*vnnr*rsqinv;  
         ccel = kn*(radsum-r)*rinv - damp;
         double fn_pot = kn*(radsum-r);
+        //******************************************************************************************************************
+        if(ccel<0) {
+        	if (touch[jj]==1){
+        		touch[jj] = 2;
+        		myEpotN = epK*fn_pot*fn_pot/kn;
+        		shear = &allshear[dnum*jj];
+        		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
+        		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
+        		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
+        		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
+        		DEH[i]+=meff_i*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
+        		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
+        		for(int d=0; d<dnum; d++)
+        			shear[d] = 0.0;
+            	fn_pot = 0.0;
+            	ccel   = 0.0;
+            	damp   = 0.0;
+            	deltan = 0.0;
+            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+        	}
+        	break;
+        }
+        //******************************************************************************************************************
         
         if (cohesionflag) { 
             addCohesionForce(i,j,r,Fn_coh);
@@ -473,9 +516,9 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		fe1x = fe0x+lambda*dfex;
             		fe1y = fe0y+lambda*dfey;
             		fe1z = fe0z+lambda*dfez;
-            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz)*0.5;
-            		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz)*0.5;
-            		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz)*0.5;
+            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz);
+            		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz);
+            		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz);
                 }
 
         	}else{
@@ -489,8 +532,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		fs2 = fe0y;
             		fs3 = fe0z;
             		myEdisTV = 0.0;
-            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z)*0.5;
-            		myEdisTF = ( -(dTx*fe0x+dTy*fe0y+dTz*fe0z) -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z))*0.5;
+            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z);
+            		myEdisTF = ( -(dTx*fe0x+dTy*fe0y+dTz*fe0z) -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
         			shear[0] = -fe0x/kt;
         		    shear[1] = -fe0y/kt;
         		    shear[2] = -fe0z/kt;
@@ -501,8 +544,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		fe0x += dfex;
         		fe0y += dfey;
         		fe0z += dfez;
-            	myWorkT = -(fe0x*dTx + fe0y*dTy + fe0z*dTz)*0.5;
-                myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat*0.5;
+            	myWorkT = -(fe0x*dTx + fe0y*dTy + fe0z*dTz);
+                myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
                 myEdisTF=0.0;
             	shear[0] += dTx;
             	shear[1] += dTy;
@@ -520,21 +563,19 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         tor3 = rinv * (delx*fs2 - dely*fs1);
 
         // Energy terms
-        myEpotN = epK*fn_pot*fn_pot/kn; // 0.4/2 = 2/5*1/2
-    	myEdisN = 0.5*damp*vnnr*dt;
-    	myEpotT = 0.0;
+        myEpotN = epK*fn_pot*fn_pot/kn; // 2/5
+    	myEdisN = damp*vnnr*dt;
 
     	CDEnij +=  myEdisN;
     	CDEVtij += myEdisTV;
     	CDEFtij += myEdisTF;
     	CTFWij +=  myWorkT;
 
-    	CPEn[i] += myEpotN;
-    	CPEt[i] += myEpotT;
-    	CDEn[i]+=  CDEnij;
-    	CDEVt[i]+= CDEVtij;
-    	CDEFt[i]+= CDEFtij;
-    	CTFW[i]+=  CTFWij;
+    	CPEn[i] += meff_i*myEpotN;
+    	CDEn[i]+=  meff_i*CDEnij;
+    	CDEVt[i]+= meff_i*CDEVtij;
+    	CDEFt[i]+= meff_i*CDEFtij;
+    	CTFW[i]+=  meff_i*CTFWij;
 
         if(rollingflag)
         {
@@ -557,12 +598,11 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         }
 
         if (j < nlocal) {
-    	  CPEn[j] += myEpotN;
-    	  CPEt[j] += myEpotT;
-    	  CDEn[j]+=  CDEnij;
-    	  CDEVt[j]+= CDEVtij;
-    	  CDEFt[j]+= CDEFtij;
-    	  CTFW[j]+=  CTFWij;
+        	CPEn[j] += meff_j*myEpotN;
+        	CDEn[j]+=  meff_j*CDEnij;
+        	CDEVt[j]+= meff_j*CDEVtij;
+        	CDEFt[j]+= meff_j*CDEFtij;
+        	CTFW[j]+=  meff_j*CTFWij;
           if(addflag){
         	  f[j][0] -= fx;
         	  f[j][1] -= fy;
@@ -678,20 +718,6 @@ void PairGranHertzIncrementalEnergy::init_substyle()
     modify->add_fix(9,fixarg);
     fppaCDEn=static_cast<FixPropertyPerAtom*>(modify->fix[modify->find_fix_property("CDEn","property/peratom","scalar",0,0)]);
   }
-  if (fppaCPEt==NULL) {
-//register Temp as property/peratom
-  fixarg[0]=(char *) "CPEt";
-  fixarg[1]=(char *) "all";
-  fixarg[2]=(char *) "property/peratom";
-  fixarg[3]=(char *) "CPEt";
-  fixarg[4]=(char *) "scalar";
-  fixarg[5]=(char *) "yes";
-  fixarg[6]=(char *) "yes";
-  fixarg[7]=(char *) "no";
-  fixarg[8]=(char *) "0.0";
-  modify->add_fix(9,fixarg);
-  fppaCPEt=static_cast<FixPropertyPerAtom*>(modify->fix[modify->find_fix_property("CPEt","property/peratom","scalar",0,0)]);
-}
   if (fppaCDEVt==NULL) {
 //register Temp as property/peratom
   fixarg[0]=(char *) "CDEVt";
