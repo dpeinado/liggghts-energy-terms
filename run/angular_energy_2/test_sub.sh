@@ -1,10 +1,10 @@
 #!/bin/bash
-model_[1]="gran/hertz/incremental/energy  1 0 "
-model_[2]="gran/hooke/history/energy  1 "
+model_[1]="gran/hooke/history/energy  1 "
+model_[2]="gran/hertz/incremental/energy  1 0 "
 model_[3]="gran/hertz/history/energy  1 "
-modelName[1]="SubStep_hertz_incremental_energy"
-modelName[2]="SubStep_hooke_history_energy"
-modelName[3]="SubStep_hertz_integral_energy"
+modelName[1]="1_hooke_history_energy"
+modelName[2]="2_hertz_incremental_energy"
+modelName[3]="3_hertz_integral_energy"
 #for option in 0 2 4
 #do
 option=0
@@ -18,12 +18,12 @@ Vmod=1
 RelM=1000
 for indice in 1 2 3
 do
-	rootName=${modelName[indice]}-${option}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
+	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
 	echo pair_style ${model} ${option}
-	read -n 1 -s "press a key"
+#	read -n 1 -s "press a key"
 	#for a in 0 #1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-	for a in 0 #5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+	for a in 0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 	do
 	#	angulo="`calc "atan(${a}/20.0)"`"
 		anguloB="`calc "${a}*atan(1.0)/45.0"`"
@@ -92,10 +92,11 @@ do
 		thermo_modify		lost ignore norm no
 		compute_modify		thermo_temp dynamic yes
 		dump			mydmp all custom 10 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
-		run			2000
-		EOF
+		run			1500
+EOF
 		python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${a}_${rootName}_
-		sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_
+		#sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_
+		sh plot_xmgr_energy.sh ${a}_${rootName}_
 	done
 	python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat ${cofI}"."${cofD}
 done
