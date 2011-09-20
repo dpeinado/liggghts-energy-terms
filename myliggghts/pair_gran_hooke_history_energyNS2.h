@@ -24,30 +24,28 @@ See the README file in the top-level LAMMPS directory.
 
 #ifdef PAIR_CLASS
 
-PairStyle(gran/hertz/history/energy,PairGranHertzHistoryEnergy)
+PairStyle(gran/hooke/history/energyNS2,PairGranHookeHistoryEnergyNS2)
 
 #else
 
-#ifndef LMP_PAIR_GRAN_HERTZ_HISTORY_ENERGY_H
-#define LMP_PAIR_GRAN_HERTZ_HISTORY_ENERGY_H
+#ifndef LMP_PAIR_GRAN_HOOKE_HISTORY_ENERGY_NS2_H
+#define LMP_PAIR_GRAN_HOOKE_HISTORY_ENERGY_NS2_H
 
 #include "pair_gran_hooke_history_energy.h"
 
 namespace LAMMPS_NS {
 
-class PairGranHertzHistoryEnergy : public PairGranHookeHistoryEnergy {
+class PairGranHookeHistoryEnergyNS2 : public PairGranHookeHistoryEnergy {
 
  friend class FixWallGranHertzHistoryEnergy;
  friend class FixCheckTimestepGran;
 
  public:
 
-   PairGranHertzHistoryEnergy(class LAMMPS *);
-   virtual void init_substyle();
+	 PairGranHookeHistoryEnergyNS2(class LAMMPS *);
+	 virtual void compute(int, int,int);
 
  protected:
-
-  virtual void deriveContactModelParams(int &, int &,double &, double &, double &,double &, double &, double &, double &,double &,double &);
 };
 
 }

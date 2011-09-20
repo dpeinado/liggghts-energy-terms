@@ -295,30 +295,30 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 
       if (rsq >= radsum*radsum) {
         	if (touch[jj]){
-        		touch[jj] = 0;
+
         		//***************************************************************
         		// Needed for introducing CDEnij to DEH[i] and DEH[j]
-        	    if (rmass) {
-        	      mi=rmass[i];
-        	      mj=rmass[j];
-        	    } else {
-        	      itype = type[i];
-        	      jtype = type[j];
-        	      mi=mass[itype];
-        	      mj=mass[jtype];
-        	    }
-        	    if (fr)
-        	    {
-        	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
-        	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
-        	    }
-        	    meff=mi*mj/(mi+mj);
-        	    meff_i=meff/mi;
-        	    meff_j=meff/mj;
-        	    if (mask[i] & freeze_group_bit) meff = mj;
-        	    if (mask[j] & freeze_group_bit) meff = mi;
-        	    //***************************************************************
-
+        			  if (rmass) {
+        			    mi=rmass[i];
+        			    mj=rmass[j];
+        			  } else {
+        			    itype = type[i];
+        			    jtype = type[j];
+        			    mi=mass[itype];
+        			    mj=mass[jtype];
+        			  }
+        			  if (fr)
+        			  {
+        			     if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
+        			     if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+        			  }
+        			  meff=mi*mj/(mi+mj);
+        			  meff_i=meff/mi;
+        			  meff_j=meff/mj;
+        			  if (mask[i] & freeze_group_bit) meff = mj;
+        			  if (mask[j] & freeze_group_bit) meff = mi;
+        		 //***************************************************************
+        		touch[jj] = 0;
         		shear = &allshear[dnum*jj];
         		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
         		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
@@ -352,7 +352,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
         vt3 = vr3 - vn3;
 
         // relative rotational velocity
-
 	    if (rmass) {
 	      mi=rmass[i];
 	      mj=rmass[j];
@@ -372,10 +371,9 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 	    meff_j=meff/mj;
 	    if (mask[i] & freeze_group_bit) meff = mj;
 	    if (mask[j] & freeze_group_bit) meff = mi;
-
         double deltan=radsum-r;
-        cri = radi;//-0.5*deltan;
-        crj = radj;//-0.5*deltan;
+        cri = radi;//-meff_j*deltan;
+        crj = radj;//-meff_i*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;

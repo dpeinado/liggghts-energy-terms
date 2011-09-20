@@ -1,32 +1,32 @@
 #!/bin/bash
-#model_[1]="gran/hertz/history/energy  1 "
-#model_[2]="gran/hertz/history/energyNS2  1 "
-#model_[3]="gran/hertz/history/energyNS1  1 "
-model_[1]="gran/hertz/incremental/energy  1 0 "
+model_[1]="gran/hooke/history/energy  1 "
+model_[2]="gran/hooke/history/energyNS2  1 "
+model_[3]="gran/hooke/history/energyNS1  1 "
+#model_[2]="gran/hertz/incremental/energy  1 0 "
 #model_[3]="gran/hertz/history/energy  1 "
-#modelName[1]="1_hertz_history_energy"
-#modelName[2]="2_hertz_history_energyNS2"
-#modelName[3]="3_hertz_history_energyNS1"
-modelName[1]="2_hertz_incremental_energy"
+modelName[1]="4_hooke_history_energy"
+modelName[2]="5_hooke_history_energyNS2"
+modelName[3]="6_hooke_history_energyNS1"
+#modelName[2]="2_hertz_incremental_energy"
 #modelName[3]="3_hertz_integral_energy"
 #for option in 0 2 4
 #do
 option=0
 cofI=0
 cofD=5
-enI=1
-enD=0
+enI=0
+enD=5
 poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 #2 3
+for indice in 1 2 3
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
 	echo pair_style ${model} ${option}
 #	read -n 1 -s "press a key"
-	for a in  1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+	for a in 1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 	do
 		anguloB="`calc "${a}*atan(1.0)/45.0"`"
 		angulo="`echo ${anguloB} | sed 's/^~//g'`"
@@ -98,7 +98,7 @@ do
 EOF
 		python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${a}_${rootName}_
 		sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_
-#		sh plot_xmgr_energy.sh ${a}_${rootName}_		
+		sh plot_xmgr_energy.sh ${a}_${rootName}_		
 	done
 	python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat ${cofI}"."${cofD}
 done

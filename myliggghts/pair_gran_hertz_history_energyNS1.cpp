@@ -26,7 +26,7 @@ See the README file in the top-level LAMMPS directory.
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-#include "pair_gran_hertz_history_energy.h"
+#include "pair_gran_hertz_history_energyNS1.h"
 #include "atom.h"
 #include "atom_vec.h"
 #include "domain.h"
@@ -57,7 +57,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-PairGranHertzHistoryEnergy::PairGranHertzHistoryEnergy(LAMMPS *lmp) : PairGranHookeHistoryEnergy(lmp)
+PairGranHertzHistoryEnergyNS1::PairGranHertzHistoryEnergyNS1(LAMMPS *lmp) : PairGranHookeHistoryEnergyNS1(lmp)
 {
     //flag that we intend to use contact history
     history = 1;
@@ -90,7 +90,7 @@ PairGranHertzHistoryEnergy::PairGranHertzHistoryEnergy(LAMMPS *lmp) : PairGranHo
 #include "pair_gran_defs.h"
 #undef LMP_GRAN_DEFS_DEFINE
 
-inline void PairGranHertzHistoryEnergy::deriveContactModelParams(int &ip, int &jp,double &meff,double &deltan, double &kn, double &kt, double &gamman, double &gammat, double &xmu, double &rmu,double &epK)
+inline void PairGranHertzHistoryEnergyNS1::deriveContactModelParams(int &ip, int &jp,double &meff,double &deltan, double &kn, double &kt, double &gamman, double &gammat, double &xmu, double &rmu,double &epK)
 {
     double reff=ri*rj/(ri+rj);
     double sqrtval = sqrt(reff*deltan);
@@ -143,7 +143,7 @@ inline void PairGranHertzHistoryEnergy::deriveContactModelParams(int &ip, int &j
    init specific to this granular substyle
 ------------------------------------------------------------------------- */
 
-void PairGranHertzHistoryEnergy::init_substyle()
+void PairGranHertzHistoryEnergyNS1::init_substyle()
 {
 	  int max_type = mpg->max_type();
 	  allocate_properties(max_type);

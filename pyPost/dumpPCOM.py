@@ -327,8 +327,8 @@ class dumpPCOM:
             vt1 = vr1 - vn1;
             vt2 = vr2 - vn2;
             vt3 = vr3 - vn3;
-            cr1 = r1-0.5*deltan;
-            cr2= r2-0.5*deltan;
+            cr1 = r1;#-0.5*deltan;
+            cr2= r2;#-0.5*deltan;
             wr1 = (cr1*atom1[omegax] + cr2*atom2[omegax]);
             wr2 = (cr1*atom1[omegay] + cr2*atom2[omegay]);
             wr3 = (cr1*atom1[omegaz] + cr2*atom2[omegaz]); 
