@@ -1,13 +1,13 @@
 #!/bin/bash
-#model_[1]="gran/hertz/history/energy  1 "
+model_[1]="gran/hooke/history/energy  1 "
 #model_[2]="gran/hertz/history/energyNS2  1 "
 #model_[3]="gran/hertz/history/energyNS1  1 "
-model_[1]="gran/hertz/incremental/energy  1 0 "
+model_[2]="gran/hertz/incremental/energy  1 0 "
 #model_[3]="gran/hertz/history/energy  1 "
-#modelName[1]="1_hertz_history_energy"
+modelName[1]="1_hooke_history_energy"
 #modelName[2]="2_hertz_history_energyNS2"
 #modelName[3]="3_hertz_history_energyNS1"
-modelName[1]="2_hertz_incremental_energy"
+modelName[2]="2_hertz_incremental_energy"
 #modelName[3]="3_hertz_integral_energy"
 #for option in 0 2 4
 #do
@@ -20,7 +20,7 @@ poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 #2 3
+for indice in 1 2 #3
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
@@ -76,7 +76,7 @@ do
 		pair_coeff		* *
 		communicate		single vel yes
 		fix    			1 all nve/sphere
-		timestep		0.0000001
+		timestep		0.00000001
 		#fix 			ts_check all check/timestep/gran 10 0.1 0.1
 		run 0
 		compute			rot_e all erotate/sphere
@@ -90,11 +90,11 @@ do
 		variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
 		variable		eKin equal "ke"
 		thermo_style		custom step atoms ke c_rot_e c_epotN c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
-		thermo			1000
+		thermo			10000
 		thermo_modify		lost ignore norm no
 		compute_modify		thermo_temp dynamic yes
-		dump			mydmp all custom 10 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
-		run			5000
+		dump			mydmp all custom 100 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
+		run			50000
 EOF
 		python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${a}_${rootName}_
 		sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_

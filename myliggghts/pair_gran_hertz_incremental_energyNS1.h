@@ -31,7 +31,7 @@ PairStyle(gran/hertz/incremental/energyNS1,PairGranHertzIncrementalEnergyNS1)
 #ifndef LMP_PAIR_GRAN_HERTZ_INCREMENTAL_ENERGY_NS1_H
 #define LMP_PAIR_GRAN_HERTZ_INCREMENTAL_ENERGY_NS1_H
 
-#include "pair_gran_hertz_incremental.h"
+#include "pair_gran_hertz_incremental_energy.h"
 
 namespace LAMMPS_NS {
 

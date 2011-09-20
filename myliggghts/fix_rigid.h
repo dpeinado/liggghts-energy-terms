@@ -43,10 +43,10 @@ class FixRigid : public Fix {
  friend class PairGranHertzIncrementalEnergy;
  friend class PairGranHookeHistoryEnergyNS1;
  friend class PairGranHertzHistoryEnergyNS1;
- //friend class PairGranHertzIncrementalEnergyNS1;
+ friend class PairGranHertzIncrementalEnergyNS1;
  friend class PairGranHookeHistoryEnergyNS2;
  friend class PairGranHertzHistoryEnergyNS2;
- //friend class PairGranHertzIncrementalEnergyNS2;
+ friend class PairGranHertzIncrementalEnergyNS2;
 
  public:
   FixRigid(class LAMMPS *, int, char **);

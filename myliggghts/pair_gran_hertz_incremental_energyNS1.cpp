@@ -118,7 +118,7 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
 
-  double dTx, dTy, dTz;
+  double dT1, dT2, dT3;
 
   double epK;
   double myEpotN;
@@ -322,126 +322,68 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         // shear history effects
 
 
-        double &fe0x = allshear[dnum*jj+0];
-        double &fe0y = allshear[dnum*jj+1];
-        double &fe0z = allshear[dnum*jj+2];
+        double &fsix = allshear[dnum*jj+0];
+        double &fsiy = allshear[dnum*jj+1];
+        double &fsiz = allshear[dnum*jj+2];
         double &CDEnij= allshear[dnum*jj+3];
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
         shear = &allshear[dnum*jj+7];
 
-        dTx = vtr1*dt;
-    	dTy = vtr2*dt;
-    	dTz = vtr3*dt;
 
-        // The pair is rotatin as a rigid solid
-    	rsht = fe0x*delx + fe0y*dely + fe0z*delz;
-        rsht *= rsqinv;
-        fe0x -= rsht*delx;
-        fe0y -= rsht*dely;
-        fe0z -= rsht*delz;
-        // Now the previous tangential elastic force is in the new tangential plane
+    	dT1 = vtr1*dt;
+    	dT2 = vtr2*dt;
+    	dT3 = vtr3*dt;
 
-        rsht = shear[0]*delx + shear[1]*dely + shear[2]*delz;
-    	rsht *= rsqinv;
-    	shear[0] -= rsht*delx;
-    	shear[1] -= rsht*dely;
-    	shear[2] -= rsht*delz;
+        // tangential forces = shear + tangential velocity damping
 
+        	fsix += -(kt*dT1);
+        	fsiy += -(kt*dT2);
+        	fsiz += -(kt*dT3);
+            // rotate shear force.
+            rsht = fsix*delx + fsiy*dely + fsiz*delz;
+            rsht *= rsqinv;
+            fsix -= rsht*delx;
+            fsiy -= rsht*dely;
+            fsiz -= rsht*delz;
+            // the gammat*vtri is already in the tangential plane.
+        	fs1 = fsix - gammat*vtr1;
+        	fs2 = fsiy - gammat*vtr2;
+        	fs3 = fsiz - gammat*vtr3;
 
-    	double delta0x = shear[0];
-        double delta0y = shear[1];
-        double delta0z = shear[2];
-        double delta02 = (delta0x*delta0x+delta0y*delta0y+delta0z*delta0z);
-        double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
-
-    	double dfex = - kt*dTx;
-    	double dfvx = - gammat*vtr1;
-    	double dfey = - kt*dTy;
-    	double dfvy = - gammat*vtr2;
-    	double dfez = - kt*dTz;
-    	double dfvz = - gammat*vtr3;
-
-   		double fe1x = fe0x+dfex;
-    	double fe1y = fe0y+dfey;
-    	double fe1z = fe0z+dfez;
-
-    	fs1 = fe0x+dfex+dfvx;
-    	fs2 = fe0y+dfey+dfvy;
-    	fs3 = fe0z+dfez+dfvz;
-
-        fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
-        double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
+        // rescale frictional displacements and forces if needed
+        fs = sqrt(fs1*fs1 + fs2*fs2 + fs3*fs3);
         fn = xmu * fabs(ccel*r);
-        double fcomp = 0;
-		double dfx = 0;
-		double dfy = 0;
-		double dfz = 0;
 
-        if (fe>fs){
-        	fcomp = fe;
-        	dfx = dfex;
-    		dfy = dfey;
-    		dfz = dfez;
+        if (fs > fn) {
+        	double dD1, dD2, dD3;
+        	double sh1, sh2, sh3;
+        	double beta = fn/fs;
+    	    fs1 *= beta;
+    	    fs2 *= beta;
+    	    fs3 *= beta;
+            fsix = fs1+gammat*vtr1;
+            fsiy = fs2+gammat*vtr2;
+            fsiz = fs3+gammat*vtr3;
+            sh1=-fsix/kt;
+            sh2=-fsiy/kt;
+            sh3=-fsiz/kt;
+			dD1 = shear[0] + fsix/kt;
+			dD1 = shear[1] + fsiy/kt;
+			dD1 = shear[2] + fsiz/kt;
+        	myEdisTF = fabs(fs1*(dT1) + fs2*(dT2) + fs3*(dT3));
+        	myEdisTV=0.0;
+        	myWorkT = -(fsix*dT1+fsiy*dT2+fsiz*dT3);
+        	myWorkT -=myEdisTF;
+        	shear[0]=sh1;
+        	shear[1]=sh2;
+        	shear[2]=sh3;
+
         }else{
-        	fcomp = fs;
-        	dfx = dfex+dfvx;
-    		dfy = dfey+dfvy;
-    		dfz = dfez+dfvz;
-        }
-
-        if (fcomp > fn) {
-        	if (fe0 <= fn){
-        		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
-        		double lambda = (fe0x*dfx+fe0y*dfy+fe0z*dfz)/df2;
-        		lambda = -lambda+sqrt(lambda*lambda+(fn*fn-fe0*fe0)/df2 );
-        		if ( (lambda<0) || (lambda>1) ) error->all("Illegal value of lambda");
-                if(shearupdate){
-            		fs1 = fe0x + lambda*dfx;
-            		fs2 = fe0y + lambda*dfy;
-            		fs3 = fe0z + lambda*dfz;
-                    fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
-                	shear[0]+=lambda*dTx;
-                	shear[1]+=lambda*dTy;
-                	shear[2]+=lambda*dTz;
-            		fe1x = fe0x+lambda*dfex;
-            		fe1y = fe0y+lambda*dfey;
-            		fe1z = fe0z+lambda*dfez;
-            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz);
-            		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz);
-            		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz);
-                }
-        	}else{
-        		double beta = fn/fe0;
-        		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
-        		if(shearupdate){
-            		fe0x *= beta;
-            		fe0y *= beta;
-            		fe0z *= beta;
-            		fs1 = fe0x;
-            		fs2 = fe0y;
-            		fs3 = fe0z;
-            		myEdisTV = 0.0;
-            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z);
-            		myEdisTF = ( -(dTx*fe0x+dTy*fe0y+dTz*fe0z) -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
-        			shear[0] = -fe0x/kt;
-        		    shear[1] = -fe0y/kt;
-        		    shear[2] = -fe0z/kt;
-        		}
-        	}
-        } else {
-            if(shearupdate){
-        		fe0x += dfex;
-        		fe0y += dfey;
-        		fe0z += dfez;
-            	myWorkT = -(fe0x*dTx + fe0y*dTy + fe0z*dTz);
-                myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
-                myEdisTF=0.0;
-            	shear[0] += dTx;
-            	shear[1] += dTy;
-            	shear[2] += dTz;
-            }
+            myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
+            myEdisTF=0.0;
+            myWorkT = -(fsix*dT1 + fsiy*dT2 + fsiz*dT3);
         }
 
 

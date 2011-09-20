@@ -499,6 +499,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     		dfz = dfez+dfvz;
         }
 
+        int caso=0;
+
         if (fcomp > fn) {
         	if (fe0 <= fn){
         		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
@@ -513,29 +515,43 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
                 	shear[0]+=lambda*dTx;
                 	shear[1]+=lambda*dTy;
                 	shear[2]+=lambda*dTz;
-            		fe1x = fe0x+lambda*dfex;
-            		fe1y = fe0y+lambda*dfey;
-            		fe1z = fe0z+lambda*dfez;
-            		myWorkT = -lambda*(fe1x*dTx+fe1y*dTy+fe1z*dTz);
+            		fe0x = fe0x+lambda*dfex;
+            		fe0y = fe0y+lambda*dfey;
+            		fe0z = fe0z+lambda*dfez;
+            		myWorkT = -lambda*(fe0x*dTx+fe0y*dTy+fe0z*dTz);
             		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz);
             		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz);
+            		caso=1;
                 }
         	}else{
         		double beta = fn/fe0;
         		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
         		if(shearupdate){
-            		fe0x *= beta;
+//****************************************************************************
+/*            		fe0x *= beta;
             		fe0y *= beta;
             		fe0z *= beta;
             		fs1 = fe0x;
             		fs2 = fe0y;
             		fs3 = fe0z;
-            		myEdisTV = 0.0;
-            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z);
-            		myEdisTF = ( -(dTx*fe0x+dTy*fe0y+dTz*fe0z) -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
-        			shear[0] = -fe0x/kt;
-        		    shear[1] = -fe0y/kt;
-        		    shear[2] = -fe0z/kt;
+            		myEdisTV = 0.0;//(1-beta)*(delta0x*dfvx+delta0y*dfvy+delta0z*dfvz);
+            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z); // ya he multiplicado fe0 por beta.
+            		myEdisTF = -((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z)); //-((dTx*(fe0x+dfvx)+dTy*(fe0y+dfvy)+dTz*(fe0z+dfvz))+(1-beta)*(delta0x*(fe0x+dfvx)+delta0y*(fe0y+dfvy)+delta0z*(fe0z+dfvz)));// ya he multiplicado fe0 por beta.
+        			shear[0] =-fe0x/kt;
+        		    shear[1] =-fe0y/kt;
+        		    shear[2] =-fe0z/kt;*/
+//****************************************************************************
+        			shear[0]*=beta;
+        			shear[1]*=beta;
+        			shear[2]*=beta;
+        			fe0x = -kt*shear[0];
+        			fe0y = -kt*shear[1];
+        			fe0z = -kt*shear[2];
+        			myWorkT = -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z);
+        			myEdisTV=0;
+        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
+//****************************************************************************
+        		    caso=2;
         		}
         	}
         } else {
@@ -549,6 +565,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             	shear[0] += dTx;
             	shear[1] += dTy;
             	shear[2] += dTz;
+            	caso=3;
             }
         }
 
@@ -569,7 +586,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	CDEVtij += myEdisTV;
     	CDEFtij += myEdisTF;
     	CTFWij +=  myWorkT;
-		if (CTFWij < 0) printf("WorkT NEGATIVO: tiempo = %u\n", update->ntimestep);
+//    	printf("tiempo = %u\tCASO = %u\n",update->ntimestep,caso);
+		if (CTFWij < 0) printf("WorkT NEGATIVO: WORKT = %f\t tiempo = %u\tCASO = %u\n", CTFWij, update->ntimestep, caso);
     	CPEn[i] += meff_i*myEpotN;
     	CDEn[i]+=  meff_i*CDEnij;
     	CDEVt[i]+= meff_i*CDEVtij;
