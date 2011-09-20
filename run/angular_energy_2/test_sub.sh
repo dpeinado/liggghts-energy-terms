@@ -96,7 +96,7 @@ do
 EOF
 		python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${a}_${rootName}_
 		#sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_
-		sh plot_xmgr_energy.sh ${a}_${rootName}_
+		sh plot_xmgr_energy.sh ${a}_${rootName}_		
 	done
 	python ~/liggghts-energy-terms/pyPost/pyCB.py "files/dump-${rootName}.*" files/plot_${rootName}.dat ${cofI}"."${cofD}
 done
