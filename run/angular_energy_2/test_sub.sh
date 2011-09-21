@@ -26,7 +26,7 @@ do
 	model=${model_[indice]}
 	echo pair_style ${model} ${option}
 #	read -n 1 -s "press a key"
-	for a in  1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+	for a in 65 # 1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 	do
 		anguloB="`calc "${a}*atan(1.0)/45.0"`"
 		angulo="`echo ${anguloB} | sed 's/^~//g'`"
@@ -76,7 +76,7 @@ do
 		pair_coeff		* *
 		communicate		single vel yes
 		fix    			1 all nve/sphere
-		timestep		0.00000001
+		timestep		0.0000001
 		#fix 			ts_check all check/timestep/gran 10 0.1 0.1
 		run 0
 		compute			rot_e all erotate/sphere
@@ -90,11 +90,11 @@ do
 		variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
 		variable		eKin equal "ke"
 		thermo_style		custom step atoms ke c_rot_e c_epotN c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
-		thermo			10000
+		thermo			1000
 		thermo_modify		lost ignore norm no
 		compute_modify		thermo_temp dynamic yes
-		dump			mydmp all custom 100 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
-		run			50000
+		dump			mydmp all custom 10 files/dump-${rootName}.${a} id type mass x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius f_CPEn f_CDEn f_CDEVt f_CDEFt f_CTFW f_DEH
+		run			5000
 EOF
 		python ~/liggghts-energy-terms/pyPost/pyGRAPH.py files/dump-${rootName}.${a} files/${a}_${rootName}_
 		sh plot_collision_energy.sh "${rootName} ANG = ${a}" ${a}_${rootName}_

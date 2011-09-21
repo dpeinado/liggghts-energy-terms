@@ -534,22 +534,26 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		fs1 = fe0x;
             		fs2 = fe0y;
             		fs3 = fe0z;
-            		myEdisTV = 0.0;//(1-beta)*(delta0x*dfvx+delta0y*dfvy+delta0z*dfvz);
+            		myEdisTV = 0.0;
             		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z); // ya he multiplicado fe0 por beta.
-            		myEdisTF = -((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z)); //-((dTx*(fe0x+dfvx)+dTy*(fe0y+dfvy)+dTz*(fe0z+dfvz))+(1-beta)*(delta0x*(fe0x+dfvx)+delta0y*(fe0y+dfvy)+delta0z*(fe0z+dfvz)));// ya he multiplicado fe0 por beta.
-        			shear[0] =-fe0x/kt;
-        		    shear[1] =-fe0y/kt;
-        		    shear[2] =-fe0z/kt;*/
+            		myEdisTF = -((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
+        			shear[0] = -fe0x/kt;
+        		    shear[1] = -fe0x/kt;
+        		    shear[2] = -fe0x/kt;*/
 //****************************************************************************
+//                  Estoy viendo otra forma de hacerlo en 2 tiempos.
+                	shear[0] += dTx;
+                	shear[1] += dTy;
+                	shear[2] += dTz;
         			shear[0]*=beta;
         			shear[1]*=beta;
         			shear[2]*=beta;
         			fe0x = -kt*shear[0];
         			fe0y = -kt*shear[1];
         			fe0z = -kt*shear[2];
-        			myWorkT = -(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z);
+        			myWorkT = ((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z);
         			myEdisTV=0;
-        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
+        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z));
 //****************************************************************************
         		    caso=2;
         		}
