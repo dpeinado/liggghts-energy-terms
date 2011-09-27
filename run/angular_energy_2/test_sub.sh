@@ -26,7 +26,7 @@ do
 	model=${model_[indice]}
 	echo pair_style ${model} ${option}
 #	read -n 1 -s "press a key"
-	for a in 65 # 1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
+	for a in 1 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85
 	do
 		anguloB="`calc "${a}*atan(1.0)/45.0"`"
 		angulo="`echo ${anguloB} | sed 's/^~//g'`"

@@ -461,7 +461,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	double delta0x = shear[0];
         double delta0y = shear[1];
         double delta0z = shear[2];
-        double delta02 = (delta0x*delta0x+delta0y*delta0y+delta0z*delta0z);
+        //double delta02 = (delta0x*delta0x+delta0y*delta0y+delta0z*delta0z);
         double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
 
     	double dfex = - kt*dTx;
@@ -528,7 +528,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
         		if(shearupdate){
 //****************************************************************************
-/*            		fe0x *= beta;
+            		fe0x *= beta;
             		fe0y *= beta;
             		fe0z *= beta;
             		fs1 = fe0x;
@@ -539,10 +539,10 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		myEdisTF = -((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
         			shear[0] = -fe0x/kt;
         		    shear[1] = -fe0x/kt;
-        		    shear[2] = -fe0x/kt;*/
+        		    shear[2] = -fe0x/kt;
 //****************************************************************************
 //                  Estoy viendo otra forma de hacerlo en 2 tiempos.
-                	shear[0] += dTx;
+/*                	shear[0] += dTx;
                 	shear[1] += dTy;
                 	shear[2] += dTz;
         			shear[0]*=beta;
@@ -553,7 +553,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         			fe0z = -kt*shear[2];
         			myWorkT = ((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z);
         			myEdisTV=0;
-        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z));
+        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z));*/
 //****************************************************************************
         		    caso=2;
         		}
