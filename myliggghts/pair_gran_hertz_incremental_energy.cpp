@@ -205,8 +205,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
   double vtr1,vtr2,vtr3,vrel;
   double meff,damp,ccel,tor1,tor2,tor3, meff_i,meff_j;
   double fn,fs,fs1,fs2,fs3;
-  double tfs1,tfs2,tfs3;
-  double shrmag,rsht, cri, crj;
+  double rsht, cri, crj;
   int *ilist,*jlist,*numneigh,**firstneigh;
   int *touch,**firsttouch;
   double *shear,*allshear,**firstshear;
@@ -309,8 +308,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	    }
     	    if (fr)
     	    {
-    	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
-    	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+    	       if(fr->body[i]>=0)  mi=fr->masstotal[fr->body[i]];
+    	       if(fr->body[j]>=0)  mj=fr->masstotal[fr->body[j]];
     	    }
     	    meff=mi*mj/(mi+mj);
     	    meff_i=meff/mi;
@@ -367,8 +366,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 	    }
 	    if (fr)
 	    {
-	       if(fr->body[i]>=0) double mi=fr->masstotal[fr->body[i]];
-	       if(fr->body[j]>=0) double mj=fr->masstotal[fr->body[j]];
+	       if(fr->body[i]>=0) mi=fr->masstotal[fr->body[i]];
+	       if(fr->body[j]>=0) mj=fr->masstotal[fr->body[j]];
 	    }
 	    meff=mi*mj/(mi+mj);
 	    meff_i=meff/mi;
@@ -387,7 +386,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
         deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
 
-        damp = gamman*vnnr*rsqinv;  
+        damp = gamman*vnnr*rsqinv;
         ccel = kn*(radsum-r)*rinv - damp;
         double fn_pot = kn*(radsum-r);
         //******************************************************************************************************************
@@ -458,10 +457,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	shear[2] -= rsht*delz;
 
 
-    	double delta0x = shear[0];
-        double delta0y = shear[1];
-        double delta0z = shear[2];
-        //double delta02 = (delta0x*delta0x+delta0y*delta0y+delta0z*delta0z);
         double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
 
     	double dfex = - kt*dTx;
@@ -501,6 +496,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
         int caso=0;
 
+
         if (fcomp > fn) {
         	if (fe0 <= fn){
         		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
@@ -527,35 +523,25 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		double beta = fn/fe0;
         		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
         		if(shearupdate){
-//****************************************************************************
-            		fe0x *= beta;
-            		fe0y *= beta;
-            		fe0z *= beta;
-            		fs1 = fe0x;
-            		fs2 = fe0y;
-            		fs3 = fe0z;
-            		myEdisTV = 0.0;
-            		myWorkT  = (1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z); // ya he multiplicado fe0 por beta.
-            		myEdisTF = -((dTx*fe0x+dTy*fe0y+dTz*fe0z)+(1-beta)*(delta0x*fe0x+delta0y*fe0y+delta0z*fe0z));
-        			shear[0] = -fe0x/kt;
-        		    shear[1] = -fe0x/kt;
-        		    shear[2] = -fe0x/kt;
-//****************************************************************************
-//                  Estoy viendo otra forma de hacerlo en 2 tiempos.
-/*                	shear[0] += dTx;
-                	shear[1] += dTy;
-                	shear[2] += dTz;
-        			shear[0]*=beta;
-        			shear[1]*=beta;
-        			shear[2]*=beta;
-        			fe0x = -kt*shear[0];
-        			fe0y = -kt*shear[1];
-        			fe0z = -kt*shear[2];
-        			myWorkT = ((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z);
-        			myEdisTV=0;
-        			myEdisTF=-((dTx*fe0x+dTy*fe0y+dTz*fe0z)+((delta0x-shear[0])*fe0x+(delta0y-shear[1])*fe0y+(delta0z-shear[2])*fe0z));*/
-//****************************************************************************
-        		    caso=2;
+        			double dTex = (1-beta)*fe0x/kt;
+        			double dTey = (1-beta)*fe0y/kt;
+        			double dTez = (1-beta)*fe0z/kt;
+        			double dTsx = dTx-dTex;
+        			double dTsy = dTy-dTey;
+        			double dTsz = dTz-dTez;
+              		fe0x *= beta;
+                	fe0y *= beta;
+                	fe0z *= beta;
+                	fs1 = fe0x;
+                	fs2 = fe0y;
+                	fs3 = fe0z;
+                	shear[0] +=dTex;
+        		    shear[1] +=dTey;
+        		    shear[2] +=dTez;
+        		    myEdisTV = 0.0;
+        		    myWorkT = -(fe0x*dTex+fe0y*dTey+fe0z*dTez);
+        		    myEdisTF= -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
+         		    caso=2;
         		}
         	}
         } else {
@@ -584,12 +570,12 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
         // Energy terms
         myEpotN = epK*fn_pot*fn_pot/kn; // 2/5
-    	myEdisN = damp*vnnr*dt;
+     	myEdisN = damp*vnnr*dt;
 
-    	CDEnij +=  myEdisN;
+    	CDEnij  +=  myEdisN;
     	CDEVtij += myEdisTV;
     	CDEFtij += myEdisTF;
-    	CTFWij +=  myWorkT;
+    	CTFWij  +=  myWorkT;
 //    	printf("tiempo = %u\tCASO = %u\n",update->ntimestep,caso);
 		if (CTFWij < 0) printf("WorkT NEGATIVO: WORKT = %f\t tiempo = %u\tCASO = %u\n", CTFWij, update->ntimestep, caso);
     	CPEn[i] += meff_i*myEpotN;
