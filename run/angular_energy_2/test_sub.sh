@@ -1,26 +1,37 @@
 #!/bin/bash
+#model_[1]="gran/hertz/incremental/energy  1 0 "
+#model_[2]="gran/hertz/incremental/energyNS1  1 0 "
+#model_[3]="gran/hertz/incremental/energyNS2  1 0 "
+#modelName[1]="1_hertz_incremental_energy"
+#modelName[2]="2_hertz_incremental_energyNS1"
+#modelName[3]="3_hertz_incremental_energyNS2"
+
 model_[1]="gran/hooke/history/energy  1 "
-#model_[2]="gran/hertz/history/energyNS2  1 "
-#model_[3]="gran/hertz/history/energyNS1  1 "
-model_[2]="gran/hertz/incremental/energy  1 0 "
-#model_[3]="gran/hertz/history/energy  1 "
+model_[2]="gran/hooke/history/energyNS1  1 "
+model_[3]="gran/hooke/history/energyNS2  1 "
 modelName[1]="1_hooke_history_energy"
-#modelName[2]="2_hertz_history_energyNS2"
-#modelName[3]="3_hertz_history_energyNS1"
-modelName[2]="2_hertz_incremental_energy"
-#modelName[3]="3_hertz_integral_energy"
+modelName[2]="2_hooke_history_energyNS1"
+modelName[3]="3_hooke_history_energyNS2"
+
+#model_[1]="gran/hertz/history/energy  1 "
+#model_[2]="gran/hertz/history/energyNS1  1 "
+#model_[3]="gran/hertz/history/energyNS2  1 "
+#modelName[1]="1_hertz_integral_energy"
+#modelName[2]="2_hertz_history_energyNS1"
+#modelName[3]="3_hertz_history_energyNS2"
+
 #for option in 0 2 4
 #do
 option=0
 cofI=0
-cofD=5
-enI=0
-enD=99999999999999999999999999999999
+cofD=7
+enI=1
+enD=0
 poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 2 #3
+for indice in 1 2 3
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}

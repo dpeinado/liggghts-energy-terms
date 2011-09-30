@@ -372,12 +372,21 @@ void PairGranHookeHistoryEnergyNS1::compute(int eflag, int vflag, int addflag)
                   fs1 *= fn/fs;
                   fs2 *= fn/fs;
                   fs3 *= fn/fs;
+                  double olds1 = shear[0];
+                  double olds2 = shear[1];
+                  double olds3 = shear[2];
                   shear[0] = -fs1/kt;
+                  shear[1] = -fs2/kt;
+                  shear[2] = -fs3/kt;
+                  myWorkT= -0.5*(fs1*(shear[0]-olds1)+ fs2*(shear[1]-olds2)+fs3*(shear[2]-olds3));
+                  myEdisTF=-(fs1*dTx+fs2*dTy+fs3*dTz)-myWorkT;
+                  myEdisTV=0.0;
+/*                  shear[0] = -fs1/kt;
                   shear[1] = -fs2/kt;
                   shear[2] = -fs3/kt;
                   myWorkT=0.0;
                   myEdisTF=-(fs1*dTx+fs2*dTy+fs3*dTz);
-                  myEdisTV=0.0;
+                  myEdisTV=0.0;*/
               }
               else fs1 = fs2 = fs3 = myWorkT=myEdisTF=myEdisTV=0.0;
           }

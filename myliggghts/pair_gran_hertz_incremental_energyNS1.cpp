@@ -57,7 +57,7 @@ PairGranHertzIncrementalEnergyNS1::PairGranHertzIncrementalEnergyNS1(LAMMPS *lmp
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 10; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    dnum = 11; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -338,49 +338,45 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
 
         // tangential forces = shear + tangential velocity damping
 
-        	fsix += -(kt*dT1);
-        	fsiy += -(kt*dT2);
-        	fsiz += -(kt*dT3);
+        fsix += -(kt*dT1);
+        fsiy += -(kt*dT2);
+        fsiz += -(kt*dT3);
             // rotate shear force.
-            rsht = fsix*delx + fsiy*dely + fsiz*delz;
-            rsht *= rsqinv;
-            fsix -= rsht*delx;
-            fsiy -= rsht*dely;
-            fsiz -= rsht*delz;
-            // the gammat*vtri is already in the tangential plane.
-        	fs1 = fsix - gammat*vtr1;
-        	fs2 = fsiy - gammat*vtr2;
-        	fs3 = fsiz - gammat*vtr3;
+        rsht = fsix*delx + fsiy*dely + fsiz*delz;
+        rsht *= rsqinv;
+        fsix -= rsht*delx;
+        fsiy -= rsht*dely;
+        fsiz -= rsht*delz;
+
+        rsht = shear[0]*delx + shear[1]*dely + shear[2]*delz;
+    	rsht *= rsqinv;
+    	shear[0] -= rsht*delx;
+    	shear[1] -= rsht*dely;
+    	shear[2] -= rsht*delz;
+
+        fs1 = fsix;
+        fs2 = fsiy;
+        fs3 = fsiz;
 
         // rescale frictional displacements and forces if needed
         fs = sqrt(fs1*fs1 + fs2*fs2 + fs3*fs3);
         fn = xmu * fabs(ccel*r);
 
         if (fs > fn) {
-        	double dD1, dD2, dD3;
-        	double sh1, sh2, sh3;
-        	double beta = fn/fs;
+			double beta = fn/fs;
     	    fs1 *= beta;
     	    fs2 *= beta;
     	    fs3 *= beta;
-            fsix = fs1+gammat*vtr1;
-            fsiy = fs2+gammat*vtr2;
-            fsiz = fs3+gammat*vtr3;
-            sh1=-fsix/kt;
-            sh2=-fsiy/kt;
-            sh3=-fsiz/kt;
-			dD1 = shear[0] + fsix/kt;
-			dD1 = shear[1] + fsiy/kt;
-			dD1 = shear[2] + fsiz/kt;
-        	myEdisTF = fabs(fs1*(dT1) + fs2*(dT2) + fs3*(dT3));
-        	myEdisTV=0.0;
-        	myWorkT = -(fsix*dT1+fsiy*dT2+fsiz*dT3);
-        	myWorkT -=myEdisTF;
-        	shear[0]=sh1;
-        	shear[1]=sh2;
-        	shear[2]=sh3;
-
+            fsix = fs1;
+            fsiy = fs2;
+            fsiz = fs3;
+            myWorkT=0.0;
+            myEdisTF=-(fs1*dT1+fs2*dT2+fs3*dT3);
+            myEdisTV=0.0;
         }else{
+        	fs1 -= gammat*vtr1;
+        	fs2 -= gammat*vtr2;
+        	fs3 -= gammat*vtr3;
             myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
             myEdisTF=0.0;
             myWorkT = -(fsix*dT1 + fsiy*dT2 + fsiz*dT3);

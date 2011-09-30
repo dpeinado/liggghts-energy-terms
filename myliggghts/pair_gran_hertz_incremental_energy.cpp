@@ -57,7 +57,7 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 10; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    dnum = 11; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -130,6 +130,8 @@ void PairGranHertzIncrementalEnergy::history_args(char** args)
     args[17] = (char *) "1";
     args[18] = (char *) "shearz";
     args[19] = (char *) "1";
+    args[20] = (char *) "fn";
+    args[21] = (char *) "0";
 }
 
 /* ---------------------------------------------------------------------- */
@@ -437,7 +439,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
         shear = &allshear[dnum*jj+7];
-
+        double &fn0 = allshear[dnum*jj+10];
         dTx = vtr1*dt;
     	dTy = vtr2*dt;
     	dTz = vtr3*dt;
@@ -495,8 +497,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         }
 
         int caso=0;
-
-
         if (fcomp > fn) {
         	if (fe0 <= fn){
         		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
@@ -520,7 +520,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		caso=1;
                 }
         	}else{
-        		double beta = fn/fe0;
+
+ /*       		double beta = (fn)/fe0;
         		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
         		if(shearupdate){
         			double dTex = (1-beta)*fe0x/kt;
@@ -541,7 +542,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		    myEdisTV = 0.0;
         		    myWorkT = -(fe0x*dTex+fe0y*dTey+fe0z*dTez);
         		    myEdisTF= -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
-         		    caso=2;
+         		    caso=2;*/
         		}
         	}
         } else {
@@ -558,7 +559,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             	caso=3;
             }
         }
-
 
         // forces & torques
         fx = delx*ccel + fs1;
@@ -577,7 +577,10 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	CDEFtij += myEdisTF;
     	CTFWij  +=  myWorkT;
 //    	printf("tiempo = %u\tCASO = %u\n",update->ntimestep,caso);
-		if (CTFWij < 0) printf("WorkT NEGATIVO: WORKT = %f\t tiempo = %u\tCASO = %u\n", CTFWij, update->ntimestep, caso);
+//		if (CTFWij < 0) {
+//			CTFWij -=myWorkT;
+//			CDEFtij+=myWorkT;
+//		}
     	CPEn[i] += meff_i*myEpotN;
     	CDEn[i]+=  meff_i*CDEnij;
     	CDEVt[i]+= meff_i*CDEVtij;

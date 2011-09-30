@@ -18,6 +18,7 @@
 #include "pair_gran_hertz_history_simple.h"
 #include "pair_gran_hertz_incremental_energy.h"
 #include "pair_gran_hertz_incremental_energyNS1.h"
+#include "pair_gran_hertz_incremental_energyNS2.h"
 #include "pair_gran_hooke.h"
 #include "pair_gran_hooke_history.h"
 #include "pair_gran_hooke_history_energy.h"

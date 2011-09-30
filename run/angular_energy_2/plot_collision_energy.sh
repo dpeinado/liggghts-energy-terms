@@ -4,6 +4,7 @@ set term png size 1600, 1400
 set output "print_files/${2}.png"
 set origin 0,0
 #set multiplot layout 2,2 scale 1,1  title "$1"
+set title "$1"
 set style line 1 lt 1 lc rgb "magenta"      lw 2 pt 4 ps 1 pi 30
 set style line 2 lt 1 lc rgb "blue"         lw 2 pt 1 ps 0 pi 30
 set style line 3 lt 1 lc rgb "green"        lw 2 pt 2 ps 0 pi 30
