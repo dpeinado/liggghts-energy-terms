@@ -57,7 +57,7 @@ PairGranHertzIncrementalEnergyNS1::PairGranHertzIncrementalEnergyNS1(LAMMPS *lmp
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 11; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -329,8 +329,6 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
-        shear = &allshear[dnum*jj+7];
-
 
     	dT1 = vtr1*dt;
     	dT2 = vtr2*dt;

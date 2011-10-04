@@ -57,7 +57,7 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 11; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -124,14 +124,6 @@ void PairGranHertzIncrementalEnergy::history_args(char** args)
     args[11] = (char *) "0";
     args[12] = (char *) "CTFWij";
     args[13] = (char *) "0";
-    args[14] = (char *) "shearx";
-    args[15] = (char *) "1";
-    args[16] = (char *) "sheary";
-    args[17] = (char *) "1";
-    args[18] = (char *) "shearz";
-    args[19] = (char *) "1";
-    args[20] = (char *) "fn";
-    args[21] = (char *) "0";
 }
 
 /* ---------------------------------------------------------------------- */
@@ -378,8 +370,10 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 	    if (mask[j] & freeze_group_bit) meff = mi;
 
         double deltan=radsum-r;
-        cri = radi;//-0.5*deltan;
-        crj = radj;//-0.5*deltan;
+        cri = radi-0.5*radi/(radi+radj)*deltan;
+        crj = radj-0.5*radj/(radi+radj)*deltan;
+        //cri = radi;//-0.5*deltan;
+        //crj = radj;//-0.5*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;
@@ -438,8 +432,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
-        shear = &allshear[dnum*jj+7];
-        double &fn0 = allshear[dnum*jj+10];
         dTx = vtr1*dt;
     	dTy = vtr2*dt;
     	dTz = vtr3*dt;
@@ -451,13 +443,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         fe0y -= rsht*dely;
         fe0z -= rsht*delz;
         // Now the previous tangential elastic force is in the new tangential plane
-
-        rsht = shear[0]*delx + shear[1]*dely + shear[2]*delz;
-    	rsht *= rsqinv;
-    	shear[0] -= rsht*delx;
-    	shear[1] -= rsht*dely;
-    	shear[2] -= rsht*delz;
-
 
         double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
 
@@ -496,8 +481,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     		dfz = dfez+dfvz;
         }
 
-        int caso=0;
-        if (fcomp > fn) {
+        if (fcomp >= fn) {
         	if (fe0 <= fn){
         		double df2 = (dfx*dfx+dfy*dfy+dfz*dfz);
         		double lambda = (fe0x*dfx+fe0y*dfy+fe0z*dfz)/df2;
@@ -508,25 +492,20 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             		fs2 = fe0y + lambda*dfy;
             		fs3 = fe0z + lambda*dfz;
                     fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
-                	shear[0]+=lambda*dTx;
-                	shear[1]+=lambda*dTy;
-                	shear[2]+=lambda*dTz;
             		fe0x = fe0x+lambda*dfex;
             		fe0y = fe0y+lambda*dfey;
             		fe0z = fe0z+lambda*dfez;
             		myWorkT = -lambda*(fe0x*dTx+fe0y*dTy+fe0z*dTz);
             		myEdisTV= -lambda*lambda*(dfvx*dTx+dfvy*dTy+dfvz*dTz);
             		myEdisTF= -(1-lambda)*(fs1*dTx+fs2*dTy+fs3*dTz);
-            		caso=1;
                 }
         	}else{
-
- /*       		double beta = (fn)/fe0;
+        		double beta = (fn)/fe0;
         		if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
         		if(shearupdate){
-        			double dTex = (1-beta)*fe0x/kt;
-        			double dTey = (1-beta)*fe0y/kt;
-        			double dTez = (1-beta)*fe0z/kt;
+        			double dTex = ((1-beta)*fe0x)/kt;
+        			double dTey = ((1-beta)*fe0y)/kt;
+        			double dTez = ((1-beta)*fe0z)/kt;
         			double dTsx = dTx-dTex;
         			double dTsy = dTy-dTey;
         			double dTsz = dTz-dTez;
@@ -536,14 +515,36 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
                 	fs1 = fe0x;
                 	fs2 = fe0y;
                 	fs3 = fe0z;
-                	shear[0] +=dTex;
-        		    shear[1] +=dTey;
-        		    shear[2] +=dTez;
         		    myEdisTV = 0.0;
-        		    myWorkT = -(fe0x*dTex+fe0y*dTey+fe0z*dTez);
-        		    myEdisTF= -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
-         		    caso=2;*/
+        		    myWorkT =  -(fe0x*dTex+fe0y*dTey+fe0z*dTez);
+        		    myEdisTF = -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
+        		    //myWorkT -=myEdisTF;
+        		    //myEdisTF= -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
         		}
+        		/*if(shearupdate){
+        			fe0x += dfex;
+        			fe0y += dfey;
+        			fe0z += dfez;
+        			fe0 = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
+        			double beta = (fn)/fe0;
+        			if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
+        			double dTex = ((1-beta)*fe0x)/kt;
+        			double dTey = ((1-beta)*fe0y)/kt;
+        			double dTez = ((1-beta)*fe0z)/kt;
+        			double dTsx = dTx+dTex;
+        			double dTsy = dTy+dTey;
+        			double dTsz = dTz+dTez;
+              		fe0x -= dTex*kt;
+                	fe0y -= dTey*kt;
+                	fe0z -= dTez*kt;
+                	fs1 = fe0x;
+                	fs2 = fe0y;
+                	fs3 = fe0z;
+        		    myEdisTV = 0.0;
+        		    //myWorkT = -(fe0x*dTx+fe0y*dTy+fe0z*dTz);
+        		    myEdisTF=  (fe0x*dTex+fe0y*dTey+fe0z*dTez);
+        		    myWorkT = - myEdisTF;
+        		}*/
         	}
         } else {
             if(shearupdate){
@@ -553,10 +554,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             	myWorkT = -(fe0x*dTx + fe0y*dTy + fe0z*dTz);
                 myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
                 myEdisTF=0.0;
-            	shear[0] += dTx;
-            	shear[1] += dTy;
-            	shear[2] += dTz;
-            	caso=3;
             }
         }
 
@@ -576,11 +573,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	CDEVtij += myEdisTV;
     	CDEFtij += myEdisTF;
     	CTFWij  +=  myWorkT;
-//    	printf("tiempo = %u\tCASO = %u\n",update->ntimestep,caso);
-//		if (CTFWij < 0) {
-//			CTFWij -=myWorkT;
-//			CDEFtij+=myWorkT;
-//		}
+
     	CPEn[i] += meff_i*myEpotN;
     	CDEn[i]+=  meff_i*CDEnij;
     	CDEVt[i]+= meff_i*CDEVtij;

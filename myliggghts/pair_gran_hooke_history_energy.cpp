@@ -372,8 +372,10 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
 	    if (mask[i] & freeze_group_bit) meff = mj;
 	    if (mask[j] & freeze_group_bit) meff = mi;
         double deltan=radsum-r;
-        cri = radi;//-meff_j*deltan;
-        crj = radj;//-meff_i*deltan;
+        cri = radi-0.5*radi/(radi+radj)*deltan;
+        crj = radj-0.5*radj/(radi+radj)*deltan;
+        //cri = radi;//-meff_j*deltan;
+        //crj = radj;//-meff_i*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;
