@@ -10,7 +10,7 @@ for name in files/plot_*.dat
 do
     pitos1="${pitos1} \"${name}\" using 1:2 title \"${name}\" with lp ls $a,"
     pitos2="${pitos2} \"${name}\" using 1:3 title \"${name}\" with lp ls $a,"
-#    pitos3="${pitos3} \"${name}\" using 1:4 title \"${name}\" with lp ls $a,"
+    pitos3="${pitos3} \"${name}\" using 1:4 title \"${name}\" with lp ls $a,"
     pitos4="${pitos4} \"${name}\" using 1:5 title \"${name}\" with lp ls $a,"
     a=`calc $a+1`
 done
@@ -33,6 +33,8 @@ set output "${mybn}_1.png"
 ${pitos1:0:${longitud}}
 set output "${mybn}_2.png"
 ${pitos2:0:${longitud}}
+set output "${mybn}_3.png"
+${pitos3:0:${longitud}}
 set output "${mybn}_4.png"
 ${pitos4:0:${longitud}}
 pause -1

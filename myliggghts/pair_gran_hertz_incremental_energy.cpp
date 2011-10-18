@@ -399,11 +399,11 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
-            	fn_pot = 0.0;
+/*            	fn_pot = 0.0;
             	ccel   = 0.0;
             	damp   = 0.0;
             	deltan = 0.0;
-            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K*/
         	}
         	break;
         }
@@ -518,33 +518,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		    myEdisTV = 0.0;
         		    myWorkT =  -(fe0x*dTex+fe0y*dTey+fe0z*dTez);
         		    myEdisTF = -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
-        		    //myWorkT -=myEdisTF;
-        		    //myEdisTF= -(fe0x*dTsx+fe0y*dTsy+fe0z*dTsz);
         		}
-        		/*if(shearupdate){
-        			fe0x += dfex;
-        			fe0y += dfey;
-        			fe0z += dfez;
-        			fe0 = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
-        			double beta = (fn)/fe0;
-        			if ( (beta<0) || (beta>1) ) error->all("Illegal value of beta");
-        			double dTex = ((1-beta)*fe0x)/kt;
-        			double dTey = ((1-beta)*fe0y)/kt;
-        			double dTez = ((1-beta)*fe0z)/kt;
-        			double dTsx = dTx+dTex;
-        			double dTsy = dTy+dTey;
-        			double dTsz = dTz+dTez;
-              		fe0x -= dTex*kt;
-                	fe0y -= dTey*kt;
-                	fe0z -= dTez*kt;
-                	fs1 = fe0x;
-                	fs2 = fe0y;
-                	fs3 = fe0z;
-        		    myEdisTV = 0.0;
-        		    //myWorkT = -(fe0x*dTx+fe0y*dTy+fe0z*dTz);
-        		    myEdisTF=  (fe0x*dTex+fe0y*dTey+fe0z*dTez);
-        		    myWorkT = - myEdisTF;
-        		}*/
         	}
         } else {
             if(shearupdate){

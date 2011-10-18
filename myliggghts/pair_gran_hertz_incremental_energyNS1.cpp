@@ -269,8 +269,10 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
 	    if (mask[j] & freeze_group_bit) meff = mi;
 
         double deltan=radsum-r;
-        cri = radi;//-0.5*deltan;
-        crj = radj;//-0.5*deltan;
+        cri = radi-0.5*radi/(radi+radj)*deltan;
+        crj = radj-0.5*radj/(radi+radj)*deltan;
+        //cri = radi;//-0.5*deltan;
+        //crj = radj;//-0.5*deltan;
         wr1 = (cri*omega[i][0] + crj*omega[j][0]) * rinv;
         wr2 = (cri*omega[i][1] + crj*omega[j][1]) * rinv;
         wr3 = (cri*omega[i][2] + crj*omega[j][2]) * rinv;
@@ -296,11 +298,11 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
-            	fn_pot = 0.0;
+ /*           	fn_pot = 0.0;
             	ccel   = 0.0;
             	damp   = 0.0;
             	deltan = 0.0;
-            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
+            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K*/
         	}
         	break;
         }
@@ -346,12 +348,6 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         fsiy -= rsht*dely;
         fsiz -= rsht*delz;
 
-        rsht = shear[0]*delx + shear[1]*dely + shear[2]*delz;
-    	rsht *= rsqinv;
-    	shear[0] -= rsht*delx;
-    	shear[1] -= rsht*dely;
-    	shear[2] -= rsht*delz;
-
         fs1 = fsix;
         fs2 = fsiy;
         fs3 = fsiz;
@@ -380,7 +376,6 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
             myWorkT = -(fsix*dT1 + fsiy*dT2 + fsiz*dT3);
         }
 
-
         // forces & torques
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
@@ -397,7 +392,7 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
     	CDEVtij += myEdisTV;
     	CDEFtij += myEdisTF;
     	CTFWij +=  myWorkT;
-		if (CTFWij < 0) printf("WorkT NEGATIVO: tiempo = %u\n", update->ntimestep);
+//		if (CTFWij < 0) printf("WorkT NEGATIVO: tiempo = %u\n", update->ntimestep);
     	CPEn[i] += meff_i*myEpotN;
     	CDEn[i]+=  meff_i*CDEnij;
     	CDEVt[i]+= meff_i*CDEVtij;
