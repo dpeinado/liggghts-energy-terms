@@ -284,9 +284,9 @@ class dumpPCOM:
                     print >>fs,atom[coordNumber]      
                     
             if f_couple_flag:
-                print >>fs,"VECTORS ","f"," float"
+                print >>fs,"VECTORS ","f_cfd"," float"
                 for atom in atoms:
-                    print >>fs,atom[fx],atom[fy],atom[fz]                    
+                    print >>fs,atom[f_couple_x],atom[f_couple_y],atom[f_couple_z]                    
                     
             fs.close()          
             snap = self.read_snapshot(f)
