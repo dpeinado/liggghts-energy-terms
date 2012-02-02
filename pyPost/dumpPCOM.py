@@ -175,9 +175,9 @@ class dumpPCOM:
         except:
             coordNumber_flag=0   
 		try:
-			f_couple_x=self.names["f_couple_cfd[0]"]
-			f_couple_y=self.names["f_couple_cfd[1]"]
-			f_couple_z=self.names["f_couple_cfd[2]"]
+			f_couple_x=self.names["f_dragforce[1]"]
+			f_couple_y=self.names["f_dragforce[2]"]
+			f_couple_z=self.names["f_dragforce[3]"]
 			f_couple_flag=1
 		except:
 			f_couple_flag=0
