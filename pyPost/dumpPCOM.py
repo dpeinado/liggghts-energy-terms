@@ -173,14 +173,14 @@ class dumpPCOM:
             coordNumber=self.names["c_cn"]
             coordNumber_flag=1
         except:
-            coordNumber_flag=0   
-		try:
-			f_couple_x=self.names["f_dragforce[1]"]
-			f_couple_y=self.names["f_dragforce[2]"]
-			f_couple_z=self.names["f_dragforce[3]"]
-			f_couple_flag=1
-		except:
-			f_couple_flag=0
+            coordNumber_flag=0                     
+        try:
+            f_couple_x=self.names["f_dragforce[1]"]
+            f_couple_y=self.names["f_dragforce[2]"]
+            f_couple_z=self.names["f_dragforce[3]"]
+            f_couple_flag=1
+        except:
+            f_couple_flag=0
                              
         n=0
         while snap:
@@ -283,10 +283,10 @@ class dumpPCOM:
                 for atom in atoms:  #loop all atoms
                     print >>fs,atom[coordNumber]      
                     
-			if f_couple_flag:
-				print >>fs,"VECTORS ","f"," float"
-				for atom in atoms:
-					print >>fs,atom[fx],atom[fy],atom[fz]                    
+            if f_couple_flag:
+                print >>fs,"VECTORS ","f"," float"
+                for atom in atoms:
+                    print >>fs,atom[fx],atom[fy],atom[fz]                    
                     
             fs.close()          
             snap = self.read_snapshot(f)
