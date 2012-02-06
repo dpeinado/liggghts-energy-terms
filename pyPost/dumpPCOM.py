@@ -103,88 +103,88 @@ class dumpPCOM:
         f=open(file)
       
         snap = self.read_snapshot(f)
-        x = self.names["x"]
-        y = self.names["y"]
-        z = self.names["z"]
-        fx= self.names["fx"]
-        fy= self.names["fy"]
-        fz= self.names["fz"]
-        vx= self.names["vx"]
-        vy= self.names["vy"]
-        vz= self.names["vz"]
-        omegax=self.names["omegax"]
-        omegay=self.names["omegay"]
-        omegaz=self.names["omegaz"]
-        r = self.names["radius"]    
-        type = self.names["type"]
+        self.x = self.names["x"]
+        self.y = self.names["y"]
+        self.z = self.names["z"]
+        self.fx= self.names["fx"]
+        self.fy= self.names["fy"]
+        self.fz= self.names["fz"]
+        self.vx= self.names["vx"]
+        self.vy= self.names["vy"]
+        self.vz= self.names["vz"]
+        self.omegax=self.names["omegax"]
+        self.omegay=self.names["omegay"]
+        self.omegaz=self.names["omegaz"]
+        self.r = self.names["radius"]    
+        self.type = self.names["type"]
       
         try:
-            cpen=self.names["f_CPEn"]
-            cpen_flag=1
+            self.cpen=self.names["f_CPEn"]
+            self.cpen_flag=1
         except:
-            cpen_flag=0 
+            self.cpen_flag=0 
         try:
-            cden=self.names["f_CDEn"]
-            cden_flag=1
+            self.cden=self.names["f_CDEn"]
+            self.cden_flag=1
         except:
-            cden_flag=0          
+            self.cden_flag=0          
         try:
-            cdetv=self.names["f_CDEVt"]
-            cdetv_flag=1
+            self.cdetv=self.names["f_CDEVt"]
+            self.cdetv_flag=1
         except:
-            cdetv_flag=0          
+            self.cdetv_flag=0          
         try:
-            cdetf=self.names["f_CDEFt"]
-            cdetf_flag=1
+            self.cdetf=self.names["f_CDEFt"]
+            self.cdetf_flag=1
         except:
-            cdetf_flag=0                   
+            self.cdetf_flag=0                   
         try:
-            ctfw=self.names["f_CTFW"]
-            ctfw_flag=1
+            self.ctfw=self.names["f_CTFW"]
+            self.ctfw_flag=1
         except:
-            ctfw_flag=0                  
+            self.ctfw_flag=0                  
         try:
-            deh=self.names["f_DEH"]
-            deh_flag=1
+            self.deh=self.names["f_DEH"]
+            self.deh_flag=1
         except:
-            deh_flag=0                       
+            self.deh_flag=0                       
         try:
-            mass=self.names["mass"]
-            mass_flag=1
+            self.mass=self.names["mass"]
+            self.mass_flag=1
         except:
-            mass_flag=0          
+            self.mass_flag=0          
         try:
-            ePGp=self.names["v_ePGp"]
-            ePGp_flag=1
+            self.ePGp=self.names["v_ePGp"]
+            self.ePGp_flag=1
         except:
-            ePGp_flag=0       
+            self.ePGp_flag=0       
         try:
-            eKinLp=self.names["c_eKinLp"]
-            eKinLp_flag=1
+            self.eKinLp=self.names["c_eKinLp"]
+            self.eKinLp_flag=1
         except:
-            eKinLp_flag=0              
+            self.eKinLp_flag=0              
         try:
-            eKinRp=self.names["c_eKinRp"]
-            eKinRp_flag=1
+            self.eKinRp=self.names["c_eKinRp"]
+            self.eKinRp_flag=1
         except:
-            eKinRp_flag=0   
+            self.eKinRp_flag=0   
 
         try:
-            coordNumber=self.names["c_cn"]
-            coordNumber_flag=1
+            self.coordNumber=self.names["c_cn"]
+            self.coordNumber_flag=1
         except:
-            coordNumber_flag=0                     
+            self.coordNumber_flag=0                     
         try:
-            f_couple_x=self.names["f_dragforce[1]"]
-            f_couple_y=self.names["f_dragforce[2]"]
-            f_couple_z=self.names["f_dragforce[3]"]
-            f_couple_flag=1
+            self.f_couple_x=self.names["f_dragforce[1]"]
+            self.f_couple_y=self.names["f_dragforce[2]"]
+            self.f_couple_z=self.names["f_dragforce[3]"]
+            self.f_couple_flag=1
         except:
-            f_couple_flag=0
+            self.f_couple_flag=0
                              
         n=0
         while snap:
-            vtkFile = root+str(n).zfill(10)+".vtk"
+            vtkFile= root+str(n).zfill(10)+".vtk"            
             vtkFile_bb = root+str(n).zfill(10)+"_boundingBox.vtk"
             print vtkFile, vtkFile_bb
             time = snap.time
@@ -195,102 +195,233 @@ class dumpPCOM:
             zlo=snap.zlo
             zhi=snap.zhi
             self.boundingBox(vtkFile_bb,xlo,xhi,ylo,yhi,zlo,zhi)
-            atoms=snap.atoms
+            atoms=snap.atoms                       
             print 'Natoms = ', len(atoms)
             fs = open(vtkFile,"w")  
+            self.writeOneVtk(fs,atoms)                    
+            fs.close()            
+            snap = self.read_snapshot(f)
+            n+=1
+    def writeAP_VTK(self, *rootF):
+   
+        if len(*rootF)==0:root="tmp"
+        else: root=rootF[0]
+      
+        file = self.flist
+        f=open(file)
+      
+        snap = self.read_snapshot(f)
+        self.x = self.names["x"]
+        self.y = self.names["y"]
+        self.z = self.names["z"]
+        self.fx= self.names["fx"]
+        self.fy= self.names["fy"]
+        self.fz= self.names["fz"]
+        self.vx= self.names["vx"]
+        self.vy= self.names["vy"]
+        self.vz= self.names["vz"]
+        self.omegax=self.names["omegax"]
+        self.omegay=self.names["omegay"]
+        self.omegaz=self.names["omegaz"]
+        self.r = self.names["radius"]    
+        self.type = self.names["type"]
+      
+        try:
+            self.cpen=self.names["f_CPEn"]
+            self.cpen_flag=1
+        except:
+            self.cpen_flag=0 
+        try:
+            self.cden=self.names["f_CDEn"]
+            self.cden_flag=1
+        except:
+            self.cden_flag=0          
+        try:
+            self.cdetv=self.names["f_CDEVt"]
+            self.cdetv_flag=1
+        except:
+            self.cdetv_flag=0          
+        try:
+            self.cdetf=self.names["f_CDEFt"]
+            self.cdetf_flag=1
+        except:
+            self.cdetf_flag=0                   
+        try:
+            self.ctfw=self.names["f_CTFW"]
+            self.ctfw_flag=1
+        except:
+            self.ctfw_flag=0                  
+        try:
+            self.deh=self.names["f_DEH"]
+            self.deh_flag=1
+        except:
+            self.deh_flag=0                       
+        try:
+            self.mass=self.names["mass"]
+            self.mass_flag=1
+        except:
+            self.mass_flag=0          
+        try:
+            self.ePGp=self.names["v_ePGp"]
+            self.ePGp_flag=1
+        except:
+            self.ePGp_flag=0       
+        try:
+            self.eKinLp=self.names["c_eKinLp"]
+            self.eKinLp_flag=1
+        except:
+            self.eKinLp_flag=0              
+        try:
+            self.eKinRp=self.names["c_eKinRp"]
+            self.eKinRp_flag=1
+        except:
+            self.eKinRp_flag=0   
+
+        try:
+            self.coordNumber=self.names["c_cn"]
+            self.coordNumber_flag=1
+        except:
+            self.coordNumber_flag=0                     
+        try:
+            self.f_couple_x=self.names["f_dragforce[1]"]
+            self.f_couple_y=self.names["f_dragforce[2]"]
+            self.f_couple_z=self.names["f_dragforce[3]"]
+            self.f_couple_flag=1
+        except:
+            self.f_couple_flag=0
+                             
+        n=0
+        while snap:
+            vtkFileActive = root+"_active"+str(n).zfill(10)+".vtk"
+            vtkFilePasive = root+"_pasive"+str(n).zfill(10)+".vtk"
+            vtkFile_bb = root+str(n).zfill(10)+"_boundingBox.vtk"
+            print vtkFileActive, vtkFilePasive, vtkFile_bb
+            time = snap.time
+            xlo=snap.xlo
+            xhi=snap.xhi
+            ylo=snap.ylo
+            yhi=snap.yhi
+            zlo=snap.zlo
+            zhi=snap.zhi
+            self.boundingBox(vtkFile_bb,xlo,xhi,ylo,yhi,zlo,zhi)
+            atoms=snap.atoms
+            atomsA = []
+            atomsP = []
+            for atom in atoms:
+                cNumber = int(atom[self.coordNumber])
+                test_activo = False
+                rad_xz = math.sqrt(atom[self.x]*atom[self.x]+atom[self.z]*atom[self.z])
+                try:
+                    alfa = math.atan(atom[self.vz]/atom[self.vx])
+                except:
+                    alfa=0
+                                                        
+                test_activo = not((alfa<1.0) and (atom[self.z]<0.0)) and (cNumber==0) and (rad_xz<0.87)
+                if test_activo:
+                    atomsA.append(atom)
+                else:
+                    atomsP.append(atom)                        
+            print 'Natoms = ', len(atoms)
+            fs = open(vtkFileActive,"w")  
+            self.writeOneVtk(fs,atomsA)                    
+            fs.close()
+            fs = open(vtkFilePasive,"w")  
+            self.writeOneVtk(fs,atomsP)                    
+            fs.close()          
+            snap = self.read_snapshot(f)
+            n+=1            
+    def writeOneVtk(self, fs, atoms):
+
             print >>fs,"# vtk DataFile Version 2.0"
             print >>fs,"Generated by pizza.py"
             print >>fs,"ASCII"
             print >>fs,"DATASET POLYDATA"
             print >>fs,"POINTS %d float" % len(atoms)
             for atom in atoms:
-                print >>fs,atom[x],atom[y],atom[z]  #write x,y,z  [atom[0]=id, atom[1]=type]
+                print >>fs,atom[self.x],atom[self.y],atom[self.z]  #write x,y,z  [atom[0]=id, atom[1]=type]
             print >>fs,"VERTICES",len(atoms),2*len(atoms)
             for i in xrange(len(atoms)):
                 print >>fs,1,i
             print >>fs,"POINT_DATA",len(atoms)
             print >>fs,"VECTORS ","f"," float"
             for atom in atoms:
-                print >>fs,atom[fx],atom[fy],atom[fz]
+                print >>fs,atom[self.fx],atom[self.fy],atom[self.fz]
             print >>fs,"VECTORS ","v"," float"
             for atom in atoms:
-                print >>fs,atom[vx],atom[vy],atom[vz]                        
+                print >>fs,atom[self.vx],atom[self.vy],atom[self.vz]                        
             print >>fs,"VECTORS ","omega"," float"
             for atom in atoms:
-                print >>fs,atom[omegax],atom[omegay],atom[omegaz]              
+                print >>fs,atom[self.omegax],atom[self.omegay],atom[self.omegaz]              
             print >>fs,"SCALARS atom_type int 1"
             print >>fs,"LOOKUP_TABLE default"
             for atom in atoms:  #loop all atoms
-                itype = int(atom[type])
+                itype = int(atom[self.type])
                 print >>fs,itype,
             print >>fs,"SCALARS radius float 1"
             print >>fs,"LOOKUP_TABLE default"
             for atom in atoms:  #loop all atoms
-                print >>fs,atom[r]  
-            if cpen_flag:
+                print >>fs,atom[self.r]  
+            if self.cpen_flag:
                 print >>fs,"SCALARS CPEn float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[cpen]  
-            if cden_flag:
+                    print >>fs,atom[self.cpen]  
+            if self.cden_flag:
                 print >>fs,"SCALARS CDEn float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[cden]  
-            if cdetv_flag:
+                    print >>fs,atom[self.cden]  
+            if self.cdetv_flag:
                 print >>fs,"SCALARS CDEVt float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[cdetv]  
-            if cdetf_flag:
+                    print >>fs,atom[self.cdetv]  
+            if self.cdetf_flag:
                 print >>fs,"SCALARS CDEFt float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[cdetf]                  
-            if ctfw_flag:
+                    print >>fs,atom[self.cdetf]                  
+            if self.ctfw_flag:
                 print >>fs,"SCALARS CTFW float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[ctfw]  
-            if deh_flag:
+                    print >>fs,atom[self.ctfw]  
+            if self.deh_flag:
                 print >>fs,"SCALARS DEH float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[deh]                              
-            if mass_flag:
+                    print >>fs,atom[self.deh]                              
+            if self.mass_flag:
                 print >>fs,"SCALARS Mass float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[mass]                                              
-            if ePGp_flag:
+                    print >>fs,atom[self.mass]                                              
+            if self.ePGp_flag:
                 print >>fs,"SCALARS ePGp float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[ePGp]        
-            if eKinLp_flag:
+                    print >>fs,atom[self.ePGp]        
+            if self.eKinLp_flag:
                 print >>fs,"SCALARS eKinLp float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[eKinLp]                      
-            if eKinRp_flag:
+                    print >>fs,atom[self.eKinLp]                      
+            if self.eKinRp_flag:
                 print >>fs,"SCALARS eKinRp float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[eKinRp]                                                      
-            if coordNumber_flag:
+                    print >>fs,atom[self.eKinRp]                                                      
+            if self.coordNumber_flag:
                 print >>fs,"SCALARS coordNumber float 1"
                 print >>fs,"LOOKUP_TABLE default"
                 for atom in atoms:  #loop all atoms
-                    print >>fs,atom[coordNumber]      
+                    print >>fs,atom[self.coordNumber]      
                     
-            if f_couple_flag:
+            if self.f_couple_flag:
                 print >>fs,"VECTORS ","f_cfd"," float"
                 for atom in atoms:
-                    print >>fs,atom[f_couple_x],atom[f_couple_y],atom[f_couple_z]                    
-                    
-            fs.close()          
-            snap = self.read_snapshot(f)
-            n+=1
+                    print >>fs,atom[self.f_couple_x],atom[self.f_couple_y],atom[self.f_couple_z]                    
+        
     def collisionBIN(self, mycof):
        
         firstTime=True
@@ -1094,18 +1225,18 @@ class dumpPCOM:
             TimeArray[timeIndx,0]=time
             particleID=1
             for atom in atomsT:                
-                myID = int(atom[id])
+                myID = int(atom[id])               
+                Active = 0.0                 
                 cNumber = int(atom[cn])
-                Fx = atom[fx]
-                Fy = atom[fy]
-                Fz = atom[fz]
-                force = 1000.0*math.sqrt(Fx*Fx+Fy*Fy+Fz*Fz)
-                limitI = atom[mass]*9810.0-1e-5
-                limitS = atom[mass]*9810.0+1e-5                
-                Active = 0.0 
-                if cNumber== 0 :
-                    if (force > limitI) and (force < limitS) :
-                        Active = 1.0
+                test_activo = False
+                try:
+                    alfa = math.atan(atom[vz]/atom[vx])
+                except:
+                    alfa=0
+                                                        
+                test_activo = not((alfa<1.0) and (atom[z]<0.0)) and (cNumber==0)                                
+                if test_activo:                    
+                    Active = 1.0
                 TimeArray[timeIndx,particleID]=Active
                 particleID+=1
             snap = self.read_snapshot(f)
@@ -1126,8 +1257,7 @@ class dumpPCOM:
 #            Active[j]/=timeSteps
 #            print >>fs,j,Active[j]
 #        fs.close()
-    def flowMass(self):
-        
+    def flowMass(self):        
         file = self.flist
         f=open(file)      
         snap = self.read_snapshot(f)
@@ -1164,22 +1294,22 @@ class dumpPCOM:
                 atomFlow=atom[mass]*atom[vy]
                 TotalFlowMass+=atomFlow
                 cNumber = int(atom[cn])
-                Fx = atom[fx]
-                Fy = atom[fy]
-                Fz = atom[fz]
-                force = 1000.0*math.sqrt(Fx*Fx+Fy*Fy+Fz*Fz)
-                limitI = atom[mass]*9810.0-1e-5
-                limitS = atom[mass]*9810.0+1e-5                                
-                if cNumber== 0 :
-                    if (force > limitI) and (force < limitS) :
-                        ActiveFlowMass+=atomFlow
-                    else:
-                        PassiveFlowMass+=atomFlow
+                test_activo = False
+                rad_xz = math.sqrt(atom[x]*atom[x]+atom[z]*atom[z])
+                try:
+                    alfa = math.atan(atom[vz]/atom[vx])
+                except:
+					alfa=0
+														
+                test_activo = not((alfa<1.0) and (atom[z]<0.0)) and (cNumber==0) and (rad_xz<0.87)
+                if test_activo:
+					ActiveFlowMass+=atomFlow
                 else:
-                    PassiveFlowMass+=atomFlow
+					PassiveFlowMass+=atomFlow              
             print time, ActiveFlowMass, PassiveFlowMass, TotalFlowMass
             print >>fs, time, ActiveFlowMass, PassiveFlowMass, TotalFlowMass
             snap = self.read_snapshot(f)
         fs.close()
+
 class Snap:
   pass
