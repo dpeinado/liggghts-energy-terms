@@ -55,7 +55,7 @@ do
 		Vy2="`echo ${Vy2B} | sed 's/^~//g'`"
 		echo ${angulo}, ${Vx1},${Vy1}, ${Vx2}, ${Vy2}
 	#	read -n 1 -s "Press any key ..."
-		./lmp_serial_debug << EOF
+		liggghts << EOF
 		echo both
 		dimension 3
 		atom_style granular
