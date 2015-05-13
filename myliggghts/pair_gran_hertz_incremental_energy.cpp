@@ -57,7 +57,7 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF shear is not needed
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -387,13 +387,17 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         double fn_pot = kn*(radsum-r);
         //******************************************************************************************************************
         if(ccel<0) {
+            /* if Fn < 0 the collision has ended. The first step after that
+             * the collission disipation is transfered to the historic term
+             * and everyting else is set to 0.0
+             */
         	if (touch[jj]==1){
         		touch[jj] = 2;
         		myEpotN = epK*fn_pot*fn_pot/kn;
         		shear = &allshear[dnum*jj];
         		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
-        		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
-        		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
+        		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy viscous tangential component between i and j particles..
+        		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy frictional tangential component between i and j particles..
         		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
         		DEH[i]+=meff_i*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
         		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);

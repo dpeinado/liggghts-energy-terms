@@ -6,30 +6,30 @@ modelName[1]="1_hertz_incremental_energy"
 #modelName[2]="2_hertz_incremental_energyNS1"
 #modelName[3]="3_hertz_incremental_energyNS2"
 
-model_[2]="gran/hooke/history/energy  1 "
-#model_[2]="gran/hooke/history/energyNS1  1 "
-#model_[3]="gran/hooke/history/energyNS2  1 "
-modelName[2]="2_hooke_history_energy"
-#modelName[2]="2_hooke_history_energyNS1"
-#modelName[3]="3_hooke_history_energyNS2"
+model_[4]="gran/hooke/history/energy  1 "
+#model_[5]="gran/hooke/history/energyNS1  1 "
+#model_[6]="gran/hooke/history/energyNS2  1 "
+modelName[4]="4_hooke_history_energy"
+#modelName[5]="5_hooke_history_energyNS1"
+#modelName[6]="6_hooke_history_energyNS2"
 
-#model_[1]="gran/hertz/history/energy  1 "
-#model_[2]="gran/hertz/history/energyNS1  1 "
-#model_[3]="gran/hertz/history/energyNS2  1 "
-#modelName[1]="1_hertz_integral_energy"
-#modelName[2]="2_hertz_history_energyNS1"
-#modelName[3]="3_hertz_history_energyNS2"
+model_[7]="gran/hertz/history/energy  1 "
+#model_[8]="gran/hertz/history/energyNS1  1 "
+#model_[9]="gran/hertz/history/energyNS2  1 "
+modelName[7]="7_hertz_integral_energy"
+#modelName[8]="8_hertz_history_energyNS1"
+#modelName[9]="9_hertz_history_energyNS2"
 
 option=0
 cofI=0
 cofD=5
-enI=1
-enD=0
+enI=0
+enD=5
 poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 2 #3
+for indice in 1 #4 7
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
