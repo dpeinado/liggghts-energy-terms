@@ -57,7 +57,12 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF shear is not needed
+    /* 3 for previous tangential force;  
+     * 4 for CDEn, CDEVt, CDEFt, CTWF; 
+     * 1 previous normal force;  
+     * shear is not needed
+     */
+    dnum = 8;     
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -124,6 +129,8 @@ void PairGranHertzIncrementalEnergy::history_args(char** args)
     args[11] = (char *) "0";
     args[12] = (char *) "CTFWij";
     args[13] = (char *) "0";
+    args[14] = (char *) "fn0";
+    args[15] = (char *) "0";
 }
 
 /* ---------------------------------------------------------------------- */
@@ -383,8 +390,8 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K
 
         damp = gamman*vnnr*rsqinv;
-        ccel = kn*(radsum-r)*rinv - damp;
-        double fn_pot = kn*(radsum-r);
+        ccel = kn*deltan*rinv - damp;
+        double fn_pot = kn*deltan;
         //******************************************************************************************************************
         if(ccel<0) {
             /* if Fn < 0 the collision has ended. The first step after that
@@ -436,6 +443,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
+        double $fn0 = allshear[dnum*jj+7]
         dTx = vtr1*dt;
     	dTy = vtr2*dt;
     	dTz = vtr3*dt;
@@ -447,9 +455,11 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         fe0y -= rsht*dely;
         fe0z -= rsht*delz;
         // Now the previous tangential elastic force is in the new tangential plane
-
+        // TODO falta por guardar el kt del paso anterior para usarlo en este si
+        // fn<fn0 entonces uso fe0?*kt/kt(t-1) en vez de fe0?
+        fn = xmu * fabs(ccel*r); // this is the total normal force (elastic + dissipation)
         double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
-
+        if(fn<fn0){}
     	double dfex = - kt*dTx;
     	double dfvx = - gammat*vtr1;
     	double dfey = - kt*dTy;
@@ -467,7 +477,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
 
         fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
         double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
-        fn = xmu * fabs(ccel*r);
         double fcomp = 0;
 		double dfx = 0;
 		double dfy = 0;
@@ -534,6 +543,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
                 myEdisTF=0.0;
             }
         }
+        fn0 = fn;  //Update previous value of xmu*Fn
 
         // forces & torques
         fx = delx*ccel + fs1;
