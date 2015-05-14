@@ -23,8 +23,8 @@ modelName[7]="7_hertz_integral_energy"
 option=0
 cofI=0
 cofD=5
-enI=0
-enD=5
+enI=1
+enD=0
 poI=0
 poD=3
 Vmod=5
@@ -89,7 +89,7 @@ do
 		#fix 			ts_check all check/timestep/gran 10 0.1 0.1
 		run 0
 		compute			rot_e all erotate/sphere
-		compute		    	epotN all reduce sum f_CPEn
+		compute		   	epotN all reduce sum f_CPEn
 		compute			edisN all reduce sum f_CDEn
 		compute			edisTV all reduce sum f_CDEVt
 		compute			edisTF all reduce sum f_CDEFt
@@ -98,7 +98,7 @@ do
 		variable		eCon equal "ke + c_rot_e + c_epotN"
 		variable		eTot equal "v_eCon + c_edisN + c_workT + c_edisTF+c_edisTV+c_edisH"
 		variable		eKin equal "ke"
-		thermo_style		custom step atoms ke c_rot_e c_epotN c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
+		thermo_style	custom step atoms ke c_rot_e c_epotN c_edisN c_edisTV c_edisTF c_workT v_eCon v_eTot c_edisH
 		thermo			1000
 		thermo_modify		lost ignore norm no
 		compute_modify		thermo_temp dynamic yes
