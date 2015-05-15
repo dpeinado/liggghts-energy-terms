@@ -132,6 +132,8 @@ void PairGranHertzIncrementalEnergy::history_args(char** args)
     args[13] = (char *) "0";
     args[14] = (char *) "fn0";
     args[15] = (char *) "0";
+    args[16] = (char *) "deltan0";
+    args[17] = (char *) "0";
 }
 
 /* ---------------------------------------------------------------------- */

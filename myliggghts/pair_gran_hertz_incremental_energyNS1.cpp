@@ -53,11 +53,17 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-PairGranHertzIncrementalEnergyNS1::PairGranHertzIncrementalEnergyNS1(LAMMPS *lmp) : PairGranHertzIncrementalEnergy(lmp)
+ PairGranHertzIncrementalEnergyNS1::PairGranHertzIncrementalEnergyNS1(LAMMPS *lmp) : PairGranHertzIncrementalEnergy(lmp)
 {
     //flag that we intend to use contact history
     history = 1;
-    dnum = 7; // 3 for previous force;  4 for CDEn, CDEVt, CDEFt, CTWF and 3 for shear
+    /* 3 for previous tangential force elastic component;  
+     * 4 for CDEn, CDEVt, CDEFt, CTWF; 
+     * 1 previous normal force times xmu;
+     * 1 previous deltan  
+     * shear is not needed
+     */
+    dnum = 9;     
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -214,12 +220,12 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
     		shear = &allshear[dnum*jj];
     		double &CDEnij = allshear[dnum*jj+3]; // this is the collision dissipated energy normal component between i and j particles.
     		double &CDEVtij = allshear[dnum*jj+4]; // this is the collision dissipated energy tangential component between i and j particles..
-    		double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
+            double &CDEFtij = allshear[dnum*jj+5]; // this is the collision dissipated energy tangential component between i and j particles..
     		double &CTFWij = allshear[dnum*jj+6]; // this is the tangential force work term between i and j particles.
         	DEH[i]+=meff_i*(CDEnij+CDEVtij+CDEFtij+CTFWij); // The historic dissipated energy for this particle has to sum the corresponding energies for this contact that have just finished.
         	DEH[j]+=meff_j*(CDEnij+CDEVtij+CDEFtij+CTFWij);
     		for(int d=0; d<dnum; d++)
-    			shear[d] = 0.0;
+                shear[d] = 0.0;
     	}
       } else {
         r = sqrt(rsq);
@@ -319,57 +325,79 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         // shear history effects
 
 
-        double &fsix = allshear[dnum*jj+0];
-        double &fsiy = allshear[dnum*jj+1];
-        double &fsiz = allshear[dnum*jj+2];
+        double &fe0x = allshear[dnum*jj+0];
+        double &fe0y = allshear[dnum*jj+1];
+        double &fe0z = allshear[dnum*jj+2];
         double &CDEnij= allshear[dnum*jj+3];
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
+        double &fn0 = allshear[dnum*jj+7];
+        double &deltan0 = allshear[dnum*jj+8];
 
     	dT1 = vtr1*dt;
     	dT2 = vtr2*dt;
     	dT3 = vtr3*dt;
 
-        // tangential forces = shear + tangential velocity damping
-
-        fsix += -(kt*dT1);
-        fsiy += -(kt*dT2);
-        fsiz += -(kt*dT3);
-            // rotate shear force.
-        rsht = fsix*delx + fsiy*dely + fsiz*delz;
+        // The pair is rotatin as a rigid solid
+    	rsht = fe0x*delx + fe0y*dely + fe0z*delz;
         rsht *= rsqinv;
-        fsix -= rsht*delx;
-        fsiy -= rsht*dely;
-        fsiz -= rsht*delz;
-        fs1 = fsix;
-        fs2 = fsiy;
-        fs3 = fsiz;
+        fe0x -= rsht*delx;
+        fe0y -= rsht*dely;
+        fe0z -= rsht*delz;
+        // Now the previous tangential elastic force is in the new tangential plane
+        // TODO falta por guardar el kt del paso anterior para usarlo en este si
+        // fn<fn0 entonces uso fe0?*kt/kt(t-1) en vez de fe0?
+        fn = xmu * fabs(ccel*r); // this is the total normal force (elastic + dissipation)
+        double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
+        if(fn<fn0){
+            double phi = sqrt(deltan/deltan0);
+            fe0x *= phi;
+            fe0y *= phi;
+            fe0z *= phi;
+            fe0  *= phi;
+        }
+    	double dfex = - kt*dT1;
+    	double dfvx = - gammat*vtr1;
+    	double dfey = - kt*dT2;
+    	double dfvy = - gammat*vtr2;
+    	double dfez = - kt*dT3;
+    	double dfvz = - gammat*vtr3;
 
-        // rescale frictional displacements and forces if needed
-        fs = sqrt(fs1*fs1 + fs2*fs2 + fs3*fs3);
-        fn = xmu * fabs(ccel*r);
+   		double fe1x = fe0x+dfex;
+    	double fe1y = fe0y+dfey;
+    	double fe1z = fe0z+dfez;
+
+    	fs1 = fe1x+dfvx;
+    	fs2 = fe1y+dfvy;
+    	fs3 = fe1z+dfvz;
+
+        fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
+        double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
 
         if (fs > fn) {
 			double beta = fn/fs;
     	    fs1 *= beta;
     	    fs2 *= beta;
     	    fs3 *= beta;
-            fsix = fs1;
-            fsiy = fs2;
-            fsiz = fs3;
+            fe0x = fs1;
+            fe0y = fs2;
+            fe0z = fs3;
             myWorkT=0.0;
             myEdisTF=-(fs1*dT1+fs2*dT2+fs3*dT3);
             myEdisTV=0.0;
         }else{
-        	fs1 -= gammat*vtr1;
-        	fs2 -= gammat*vtr2;
-        	fs3 -= gammat*vtr3;
+            fe0x = fe1x;
+            fe0y = fe1y;
+            fe0z = fe1z;
             myEdisTV = (vtr1*vtr1+vtr2*vtr2+vtr3*vtr3)*dt*gammat;
             myEdisTF=0.0;
-            myWorkT = -(fsix*dT1 + fsiy*dT2 + fsiz*dT3);
+            myWorkT = -(fe1x*dT1 + fe1y*dT2 + fe1z*dT3);
         }
 
+        fn0 = fn;  //Update previous value of xmu*Fn
+        deltan0 = deltan; //Update previous value of deltan
+        
         // forces & torques
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
@@ -435,3 +463,4 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
     }
   }
 }
+

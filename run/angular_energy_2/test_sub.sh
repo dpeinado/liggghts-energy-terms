@@ -1,9 +1,9 @@
 #!/bin/bash
 model_[1]="gran/hertz/incremental/energy  1 0 "
-#model_[2]="gran/hertz/incremental/energyNS1  1 0 "
+model_[2]="gran/hertz/incremental/energyNS1  1 0 "
 #model_[3]="gran/hertz/incremental/energyNS2  1 0 "
 modelName[1]="1_hertz_incremental_energy"
-#modelName[2]="2_hertz_incremental_energyNS1"
+modelName[2]="2_hertz_incremental_energyNS1"
 #modelName[3]="3_hertz_incremental_energyNS2"
 
 #model_[4]="gran/hooke/history/energy  1 "
@@ -29,7 +29,7 @@ poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 #5 6 #4 7
+for indice in 1 2 #5 6 #4 7
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
