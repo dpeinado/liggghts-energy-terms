@@ -1,2 +1,0 @@
-gs -sDEVICE=pdfwrite -sOutputFile=resultado.pdf -c "<< /PageSize [2048 2660] >> setpagedevice " -f 0_1_hooke_history_energy-1000_En0_5_COF0_5_PO0_3_0.pdf 0_2_hertz_incremental_energy-1000_En0_5_COF0_5_PO0_3_0.pdf 0_3_hertz_integral_energy-1000_En0_5_COF0_5_PO0_3_0.pdf 
-

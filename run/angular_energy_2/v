@@ -1,2 +1,0 @@
-#!/bin/sh
-eog pitos_*.png print_files/*.png

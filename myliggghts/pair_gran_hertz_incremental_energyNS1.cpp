@@ -375,7 +375,7 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
         double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
 
-        if (fs > fn) {
+        if (fs >= fn) {
 			double beta = fn/fs;
     	    fs1 *= beta;
     	    fs2 *= beta;
