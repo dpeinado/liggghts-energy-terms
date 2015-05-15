@@ -16,7 +16,7 @@ fix 		    	m3 all property/global coefficientRestitution peratomtypepair 1 0.5
 fix 	    		m4 all property/global coefficientFriction peratomtypepair 1 0.5
 fix 		     	m5 all property/global characteristicVelocity scalar 1
 
-pair_style          gran/hooke/history 1 0
+pair_style          gran/hertz/incremental/energy  1 0 0
 pair_coeff	    	* *
 
 timestep	    	0.0000001
