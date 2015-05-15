@@ -8,10 +8,10 @@ modelName[1]="1_hertz_incremental_energy"
 
 model_[4]="gran/hooke/history/energy  1 "
 #model_[5]="gran/hooke/history/energyNS1  1 "
-model_[6]="gran/hooke/history/energyNS2  1 "
+#model_[6]="gran/hooke/history/energyNS2  1 "
 modelName[4]="4_hooke_history_energy"
 #modelName[5]="5_hooke_history_energyNS1"
-modelName[6]="6_hooke_history_energyNS2"
+#modelName[6]="6_hooke_history_energyNS2"
 
 #model_[7]="gran/hertz/history/energy  1 "
 #model_[8]="gran/hertz/history/energyNS1  1 "
@@ -29,7 +29,7 @@ poI=0
 poD=3
 Vmod=5
 RelM=1
-for indice in 1 4 6 #5 6 #4 7
+for indice in 1 4 #5 6 #4 7
 do
 	rootName=${modelName[indice]}-${RelM}_En${enI}_${enD}_COF${cofI}_${cofD}_PO${poI}_${poD}
 	model=${model_[indice]}
