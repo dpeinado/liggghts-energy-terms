@@ -298,11 +298,6 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
- /*           	fn_pot = 0.0;
-            	ccel   = 0.0;
-            	damp   = 0.0;
-            	deltan = 0.0;
-            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K*/
         	}
         	break;
         }
@@ -347,7 +342,6 @@ void PairGranHertzIncrementalEnergyNS1::compute(int eflag, int vflag, int addfla
         fsix -= rsht*delx;
         fsiy -= rsht*dely;
         fsiz -= rsht*delz;
-
         fs1 = fsix;
         fs2 = fsiy;
         fs3 = fsiz;

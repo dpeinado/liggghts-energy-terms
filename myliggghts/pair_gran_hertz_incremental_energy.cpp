@@ -57,12 +57,13 @@ PairGranHertzIncrementalEnergy::PairGranHertzIncrementalEnergy(LAMMPS *lmp) : Pa
 {
     //flag that we intend to use contact history
     history = 1;
-    /* 3 for previous tangential force;  
+    /* 3 for previous tangential force elastic component;  
      * 4 for CDEn, CDEVt, CDEFt, CTWF; 
-     * 1 previous normal force;  
+     * 1 previous normal force times xmu;
+     * 1 previous deltan  
      * shear is not needed
      */
-    dnum = 8;     
+    dnum = 9;     
     Yeff = NULL;
     Geff = NULL;
     Kappa = NULL;
@@ -410,11 +411,6 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         		DEH[j]+=meff_j*(myEpotN+CDEnij+CDEVtij+CDEFtij+CTFWij);
         		for(int d=0; d<dnum; d++)
         			shear[d] = 0.0;
-/*            	fn_pot = 0.0;
-            	ccel   = 0.0;
-            	damp   = 0.0;
-            	deltan = 0.0;
-            	deriveContactModelParams(i,j,meff,deltan,kn,kt,gamman,gammat,xmu,rmu,epK);	 //modified C.K*/
         	}
         	break;
         }
@@ -443,7 +439,9 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         double &CDEVtij= allshear[dnum*jj+4];
         double &CDEFtij= allshear[dnum*jj+5];
         double &CTFWij= allshear[dnum*jj+6];
-        double $fn0 = allshear[dnum*jj+7]
+        double &fn0 = allshear[dnum*jj+7];
+        double &deltan0 = allshear[dnum*jj+8];
+
         dTx = vtr1*dt;
     	dTy = vtr2*dt;
     	dTz = vtr3*dt;
@@ -459,7 +457,13 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
         // fn<fn0 entonces uso fe0?*kt/kt(t-1) en vez de fe0?
         fn = xmu * fabs(ccel*r); // this is the total normal force (elastic + dissipation)
         double fe0    = sqrt(fe0x*fe0x+fe0y*fe0y+fe0z*fe0z);
-        if(fn<fn0){}
+        if(fn<fn0){
+            double phi = sqrt(deltan/deltan0);
+            fe0x *= phi;
+            fe0y *= phi;
+            fe0z *= phi;
+            fe0  *= phi;
+        }
     	double dfex = - kt*dTx;
     	double dfvx = - gammat*vtr1;
     	double dfey = - kt*dTy;
@@ -471,9 +475,9 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
     	double fe1y = fe0y+dfey;
     	double fe1z = fe0z+dfez;
 
-    	fs1 = fe0x+dfex+dfvx;
-    	fs2 = fe0y+dfey+dfvy;
-    	fs3 = fe0z+dfez+dfvz;
+    	fs1 = fe1x+dfvx;
+    	fs2 = fe1y+dfvy;
+    	fs3 = fe1z+dfvz;
 
         fs = sqrt( fs1*fs1+fs2*fs2+fs3*fs3 );
         double fe = sqrt( fe1x*fe1x+fe1y*fe1y+fe1z*fe1z );
@@ -544,7 +548,7 @@ void PairGranHertzIncrementalEnergy::compute(int eflag, int vflag, int addflag)
             }
         }
         fn0 = fn;  //Update previous value of xmu*Fn
-
+        deltan0 = deltan; //Update previous value of deltan
         // forces & torques
         fx = delx*ccel + fs1;
         fy = dely*ccel + fs2;
