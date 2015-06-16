@@ -21,6 +21,7 @@ See the README file in the top-level LAMMPS directory.
 #include "sys/stat.h"
 #include "string.h"
 #include "stdlib.h"
+#include "unistd.h"
 #include "atom.h"
 #include "comm.h"
 #include "update.h"

@@ -66,20 +66,20 @@ inline void PairGranHertzHistory::deriveContactModelParams(int &ip, int &jp,doub
     gamman=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(Sn*meff);
     switch(constflag){
     case 0:
-    	kt = 2./7.*kn;
-    	gammat=2./7.*gamman;
-    	break;
-    case 1:
     	kt=Kappa[itype][jtype]*kn;
     	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
     	break;
-    case 2:
-    	kt=kn;
-    	gammat=gamman;
-    	break;
-    case 3:
+    case 1:
     	kt=St;
     	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
+    	break;
+    case 2:
+    	kt = 2./7.*kn;
+    	gammat=2./7.*gamman;
+    	break;
+    case 3:
+    	kt=kn;
+    	gammat=gamman;
     	break;
     }
 

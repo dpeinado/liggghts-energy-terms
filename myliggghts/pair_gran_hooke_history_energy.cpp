@@ -211,8 +211,6 @@ void PairGranHookeHistoryEnergy::compute(int eflag, int vflag, int addflag)
   int *touch,**firsttouch;
   double *shear,*allshear,**firstshear;
 
-
-
   if (eflag || vflag) ev_setup(eflag,vflag);
   else evflag = vflag_fdotr = 0;
 

@@ -96,26 +96,24 @@ inline void PairGranHertzHistoryEnergy::deriveContactModelParams(int &ip, int &j
     double sqrtval = sqrt(reff*deltan);
     double Sn=2.*Yeff[itype][jtype]*sqrtval;
     double St=8.*Geff[itype][jtype]*sqrtval;
-
     kn=4./3.*Yeff[itype][jtype]*sqrtval;
     gamman=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(Sn*meff);
-
     switch(constflag){
     case 0:
-    	kt=St;
+    	kt=Kappa[itype][jtype]*kn;
     	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
     	break;
     case 1:
+    	kt=St;
+    	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
+    	break;
+    case 2:
     	kt = 2./7.*kn;
     	gammat=2./7.*gamman;
     	break;
-    case 2:
+    case 3:
     	kt=kn;
     	gammat=gamman;
-    	break;
-    case 3:
-    	kt=Kappa[itype][jtype]*kn;
-    	gammat=-2.*sqrtFiveOverSix*betaeff[itype][jtype]*sqrt(St*meff);
     	break;
     }
 //    printf("\n************************************\n");
